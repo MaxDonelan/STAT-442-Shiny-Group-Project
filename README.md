@@ -9,3 +9,5 @@ Use the src/unsourced folder to hold any data cleaning code, then store the resu
 Be careful using other people's server code; I would recommend keeping each tab completely self-contained.
 
 To work on the app: clone the repo onto your computer (downloading the GitHub desktop app might be helpful), create a new branch (e.g. your name), make your changes, publish your branch, and submit a pull request with main.
+
+Finally, it might be a good idea to periodically pull main to see if there have been changes.

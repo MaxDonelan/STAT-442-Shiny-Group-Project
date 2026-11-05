@@ -1,5 +1,11 @@
-# STAT-442-Shiny-Week-2
+# STAT-442-Shiny-Group-Project
 
-This repository holds the code to run the shiny app on the NHTSA accidents data made for STAT 442 - Exploratory Data Analysis.
+This repository has the code for the STAT 442 Group Shiny App.
 
-The shiny app is published on [Posit Connect Cloud](https://01a17020-b5ec-cf05-cc88-391ee4a1b5e0.share.connect.posit.cloud/)
+Each of us will create one tab in the app. Please create R files containing your ui and server code (in the corresponding folders in /src) and source them into the main app. **Don't put tab-specific code in app.R** (except for loading data).
+
+Use the src/unsourced folder to hold any data cleaning code, then store the results in the data folder and load in app.R. **Don't perform data cleaning app.R**.
+
+Be careful using other people's server code; I would recommend keeping each tab completely self-contained.
+
+To work on the app: clone the repo onto your computer (downloading the GitHub desktop app might be helpful), create a new branch (e.g. your name), make your changes, publish your branch, and submit a pull request with main.

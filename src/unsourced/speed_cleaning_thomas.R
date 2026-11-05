@@ -217,26 +217,22 @@ drivers <- persons %>%
 # 8. Clean vehicle speed variables
 # ------------------------------------------------------------
 
-# Preserve original reported speed values.
-#
-# TRAV_SP_ANALYSIS is a provisional analysis variable.
-# Values outside 0-150 mph are excluded from speed analysis.
-# The original TRAV_SP variable remains unchanged.
-#
-# We will verify special FARS speed codes against the
-# coding manual before finalizing the analysis.
-
 vehicles <- vehicles %>%
   mutate(
-    TRAV_SP_ANALYSIS = if_else(
-      !is.na(TRAV_SP) &
-        TRAV_SP >= 0 &
-        TRAV_SP <= 150,
-      TRAV_SP,
-      NA_real_
+    TRAV_SP_STATUS = case_when(
+      TRAV_SP == 0 ~ "Stopped",
+      TRAV_SP >= 1 & TRAV_SP <= 151 ~ "Reported",
+      TRAV_SP == 997 ~ "Over 151 mph",
+      TRAV_SP == 998 ~ "Not Reported",
+      TRAV_SP == 999 ~ "Unknown",
+      TRUE ~ "Other / Missing"
+    ),
+    
+    TRAV_SP_ANALYSIS = case_when(
+      TRAV_SP >= 1 & TRAV_SP <= 151 ~ TRAV_SP,
+      TRUE ~ NA_real_
     )
   )
-
 
 # ------------------------------------------------------------
 # 9. Combine vehicle and driver information
@@ -300,12 +296,14 @@ driver_speed_thomas <- driver_speed_thomas %>%
     YEAR = as.integer(YEAR),
     
     SPEED_CATEGORY = case_when(
-      is.na(TRAV_SP_ANALYSIS) ~ "Unknown",
+      TRAV_SP == 0 ~ "Stopped",
       TRAV_SP_ANALYSIS < 30 ~ "Under 30 mph",
       TRAV_SP_ANALYSIS < 45 ~ "30-44 mph",
       TRAV_SP_ANALYSIS < 60 ~ "45-59 mph",
       TRAV_SP_ANALYSIS < 75 ~ "60-74 mph",
-      TRAV_SP_ANALYSIS >= 75 ~ "75+ mph"
+      TRAV_SP_ANALYSIS >= 75 ~ "75+ mph",
+      TRAV_SP == 997 ~ "Over 151 mph",
+      TRUE ~ "Unknown"
     ),
     
     SPEED_LIMIT_CATEGORY = case_when(

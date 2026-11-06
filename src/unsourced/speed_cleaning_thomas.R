@@ -13,7 +13,6 @@
 #   6. Save cleaned datasets for the Shiny application
 # ============================================================
 
-
 # ------------------------------------------------------------
 # 1. Load libraries
 # ------------------------------------------------------------
@@ -295,33 +294,31 @@ driver_speed_thomas <- driver_speed_thomas %>%
   mutate(
     YEAR = as.integer(YEAR),
     
-    SPEED_CATEGORY = case_when(
-      TRAV_SP == 0 ~ "Stopped",
-      TRAV_SP_ANALYSIS < 30 ~ "Under 30 mph",
-      TRAV_SP_ANALYSIS < 45 ~ "30-44 mph",
-      TRAV_SP_ANALYSIS < 60 ~ "45-59 mph",
-      TRAV_SP_ANALYSIS < 75 ~ "60-74 mph",
-      TRAV_SP_ANALYSIS >= 75 ~ "75+ mph",
-      TRAV_SP == 997 ~ "Over 151 mph",
-      TRUE ~ "Unknown"
+    # Road classification
+    ROAD_TYPE = case_when(
+      FUNC_SYS == 1 ~ "Interstate",
+      FUNC_SYS == 2 ~ "Other Freeway / Expressway",
+      FUNC_SYS == 3 ~ "Other Principal Arterial",
+      FUNC_SYS == 4 ~ "Minor Arterial",
+      FUNC_SYS == 5 ~ "Major Collector",
+      FUNC_SYS == 6 ~ "Minor Collector",
+      FUNC_SYS == 7 ~ "Local Road",
+      TRUE ~ NA_character_
     ),
     
-    SPEED_LIMIT_CATEGORY = case_when(
-      is.na(VSPD_LIM) ~ "Unknown",
-      VSPD_LIM < 30 ~ "Under 30 mph",
-      VSPD_LIM < 45 ~ "30-44 mph",
-      VSPD_LIM < 60 ~ "45-59 mph",
-      VSPD_LIM < 75 ~ "60-74 mph",
-      VSPD_LIM >= 75 ~ "75+ mph"
+    # Rural vs. urban
+    AREA_TYPE = case_when(
+      RUR_URB == 1 ~ "Rural",
+      RUR_URB == 2 ~ "Urban",
+      TRUE ~ NA_character_
     )
   )
-
 
 # ------------------------------------------------------------
 # 12. Create summary datasets
 # ------------------------------------------------------------
 
-# Driver counts by sex and year
+# Driver records by sex and year
 
 driver_sex_summary_thomas <- driver_speed_thomas %>%
   group_by(YEAR, SEX_LABEL) %>%
@@ -331,27 +328,36 @@ driver_sex_summary_thomas <- driver_speed_thomas %>%
   )
 
 
-# Average reported speed by sex and year
+# Road classification by sex and year
 
-driver_speed_summary_thomas <- driver_speed_thomas %>%
-  filter(!is.na(TRAV_SP_ANALYSIS)) %>%
+
+road_sex_summary_thomas <- driver_speed_thomas %>%
+  filter(
+    !is.na(ROAD_TYPE),
+    SEX_LABEL %in% c("Female", "Male")
+  ) %>%
+  count(YEAR, ROAD_TYPE, SEX_LABEL) %>%
+  group_by(YEAR, ROAD_TYPE) %>%
+  mutate(
+    PERCENTAGE = n / sum(n) * 100
+  ) %>%
+  ungroup()
+
+
+# Rural vs. urban by sex and year
+
+rural_urban_summary_thomas <- driver_speed_thomas %>%
+  filter(
+    !is.na(AREA_TYPE),
+    SEX_LABEL %in% c("Female", "Male")
+  ) %>%
+  count(YEAR, SEX_LABEL, AREA_TYPE) %>%
   group_by(YEAR, SEX_LABEL) %>%
-  summarise(
-    DRIVER_COUNT = n(),
-    AVG_SPEED = mean(TRAV_SP_ANALYSIS),
-    MEDIAN_SPEED = median(TRAV_SP_ANALYSIS),
-    .groups = "drop"
-  )
+  mutate(
+    PERCENTAGE = n / sum(n) * 100
+  ) %>%
+  ungroup()
 
-
-# Fatal crash counts by speed category
-
-speed_category_summary_thomas <- driver_speed_thomas %>%
-  group_by(YEAR, SPEED_CATEGORY) %>%
-  summarise(
-    DRIVER_COUNT = n(),
-    .groups = "drop"
-  )
 
 
 # ------------------------------------------------------------
@@ -384,14 +390,15 @@ saveRDS(
 )
 
 saveRDS(
-  driver_speed_summary_thomas,
-  "data/driver_speed_summary_thomas.rds"
+  road_sex_summary_thomas,
+  "data/road_sex_summary_thomas.rds"
 )
 
 saveRDS(
-  speed_category_summary_thomas,
-  "data/speed_category_summary_thomas.rds"
+  rural_urban_summary_thomas,
+  "data/rural_urban_summary_thomas.rds"
 )
+
 
 
 # ------------------------------------------------------------
@@ -424,5 +431,24 @@ print(
   driver_speed_thomas %>%
     count(YEAR)
 )
+
+
+cat("\nRoad classification counts:\n")
+
+print(
+  driver_speed_thomas %>%
+    count(ROAD_TYPE, sort = TRUE)
+)
+
+cat("\nRural / urban counts:\n")
+
+print(
+  driver_speed_thomas %>%
+    count(AREA_TYPE, sort = TRUE)
+)
+
+cat("\nRoad classification by sex:\n")
+
+print(road_sex_summary_thomas)
 
 cat("\n========================================\n")

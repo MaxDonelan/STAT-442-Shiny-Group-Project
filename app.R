@@ -18,7 +18,7 @@ library(leaflet)
 
 # data -------------------------------------------------------------------------
 
-accident_cleaned <- read_csv("data/accident_cleaned.csv") |>
+accident_cleaned <- readRDS("data/accident_cleaned.rds") |>
   mutate(
     Hour = factor(Hour,
                   levels = c(
@@ -53,9 +53,6 @@ person_cleaned <- read_csv("data/person_cleaned.csv") |>
   mutate(
     Fatal = factor(Fatal, levels = c("Dead", "Alive", "Unknown/Other"))
 )
-
-im_hour_min <- as.POSIXct("2024-01-01 00:00", tz = "UTC")
-im_hour_max <- as.POSIXct("2024-01-01 23:00", tz = "UTC")
 
 # ui ---------------------------------------------------------------------------
 

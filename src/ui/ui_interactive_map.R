@@ -17,9 +17,9 @@ nav_panel(
       ),
       sliderInput("im_hour",
                   label = "Select Hours",
-                  min = im_hour_min,
-                  max = im_hour_max,
-                  value = c(im_hour_min, im_hour_max),
+                  min = as.POSIXct("2024-01-01 00:00", tz = "UTC"),
+                  max = as.POSIXct("2024-01-01 23:00", tz = "UTC"),
+                  value = c(as.POSIXct("2024-01-01 00:00", tz = "UTC"), as.POSIXct("2024-01-01 23:00", tz = "UTC")),
                   step = 3600,
                   timeFormat = "%I %p",   # 12 AM, 01 AM, ... 11 PM
                   timezone = "+0000"),

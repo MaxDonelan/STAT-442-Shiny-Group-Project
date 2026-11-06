@@ -95,5 +95,5 @@ accident_cleaned <- accident |>
     Fatalities = FATALS
   )
 
-write_csv(accident_cleaned, "data/accident_cleaned.csv")
+saveRDS(accident_cleaned, "data/accident_cleaned.rds")
 

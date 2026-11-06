@@ -8,7 +8,8 @@ nav_panel(
     border = FALSE,
     border_radius = FALSE,
     sidebar = sidebar(
-      "Filters",
+      h3("Filters"),
+      hr(),
       sliderInput("im_fatal", 
                   label = "Number of fatalities", 
                   min = 1, 
@@ -38,6 +39,7 @@ nav_panel(
                      label = "Light Conditions", 
                      choices = c("All", unique(accident_cleaned$`Light Conditions`))
       ),
+      hr(),
       input_task_button("im_reset",
                         label = "Reset",
                         icon = icon("rotate-left"), 

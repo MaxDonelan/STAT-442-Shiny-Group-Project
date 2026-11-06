@@ -15,6 +15,9 @@ library(htmltools)
 library(dplyr)
 library(paletteer)
 library(leaflet)
+library(tigris)
+library(sf)
+library(bsicons)
 
 # data -------------------------------------------------------------------------
 
@@ -55,6 +58,15 @@ person_cleaned <- readRDS("data/person_cleaned.rds") |>
     Fatal = factor(Fatal, levels = c("Dead", "Alive", "Unknown/Other"))
 )
 
+data24    <- readRDS("data/accidents_24.rds")
+data23    <- readRDS("data/accidents_23.rds")
+
+options(tigris_use_cache = TRUE)
+us_states <- states(cb = TRUE, year = 2022, resolution = "20m") |>
+  filter(NAME %in% c(state.name, "District of Columbia")) |>
+  st_transform(crs = 4326)
+
+
 # ui ---------------------------------------------------------------------------
 
 # IMPORTANT
@@ -85,11 +97,11 @@ ui <- page_navbar(
                style = "text-align: right;"),
   # each file is a tab
   source("src/ui/ui_interactive_map.R", local = TRUE)$value, # need local = TRUE to use environment created by the app as it runs
-  source("src/ui/ui_thomas.R", local = TRUE)$value
+  source("src/ui/ui_thomas.R", local = TRUE)$value,
+  source("src/ui/ui_carter.R", local = TRUE)$value
+  
   
 )
-
-
 
 # server -----------------------------------------------------------------------
 
@@ -102,6 +114,8 @@ server <- function(input, output, session) {
   source("src/server/server_interactive_map.R", local = TRUE)$value
   
   source("src/server/server_thomas.R", local = TRUE)$value
+  
+  source("src/server/server_carter.R", local = TRUE)$value
 }
 
 shinyApp(ui = ui, server = server)

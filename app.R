@@ -18,9 +18,9 @@ library(leaflet)
 
 # data -------------------------------------------------------------------------
 
-accident <- read_csv("data/accident.csv") # I'll probably create a cleaned version eventually (as an FYI if you end up using it)
+accident <- readRDS("data/accidents_thomas.rds") # I'll probably create a cleaned version eventually (as an FYI if you end up using it)
 
-person_cleaned <- read_csv("data/person_cleaned.csv") |>
+person_cleaned <- readRDS("data/person_cleaned.rds") |>
   mutate(
     Fatal = factor(Fatal, levels = c("Dead", "Alive", "Unknown/Other"))
 )

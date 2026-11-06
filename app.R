@@ -48,8 +48,9 @@ accident_cleaned <- read_csv("data/accident_cleaned.csv") |>
                     "11:00pm-11:59pm"
                   ))
   )
+accident <- readRDS("data/accident.rds") # I'll probably create a cleaned version eventually (as an FYI if you end up using it)
 
-person_cleaned <- read_csv("data/person_cleaned.csv") |>
+person_cleaned <- readRDS("data/person_cleaned.rds") |>
   mutate(
     Fatal = factor(Fatal, levels = c("Dead", "Alive", "Unknown/Other"))
 )
@@ -83,10 +84,12 @@ ui <- page_navbar(
       }
     "),
   title = "Traffic Fatalities",
-  header = div(input_dark_mode(mode = "dark"),
+  header = div(input_dark_mode(id = "ide_mode", mode = "dark"),
                style = "text-align: right;"),
   # each file is a tab
-  source("src/ui/ui_interactive_map.R", local = TRUE)$value # need local = TRUE to use environment created by the app as it runs
+  source("src/ui/ui_interactive_map.R", local = TRUE)$value, # need local = TRUE to use environment created by the app as it runs
+  source("src/ui/ui_thomas.R", local = TRUE)$value
+  
 )
 
 
@@ -101,6 +104,7 @@ server <- function(input, output, session) {
   
   source("src/server/server_interactive_map.R", local = TRUE)$value
   
+  source("src/server/server_thomas.R", local = TRUE)$value
 }
 
 shinyApp(ui = ui, server = server)

@@ -51,10 +51,12 @@ ui <- page_navbar(
       }
     "),
   title = "Traffic Fatalities",
-  header = div(input_dark_mode(mode = "dark"),
+  navbar_options = navbar_options(collapsible = FALSE),
+  header = div(input_dark_mode(id = "app_dark_mode", mode = "dark"),
                style = "text-align: right;"),
   # each file is a tab
-  source("src/ui/ui_interactive_map.R", local = TRUE)$value # need local = TRUE to use environment created by the app as it runs
+  source("src/ui/ui_interactive_map.R", local = TRUE)$value, # need local = TRUE to use environment created by the app as it runs
+  source("src/ui/ui_seasons.R", local = TRUE)$value
 )
 
 
@@ -66,9 +68,10 @@ ui <- page_navbar(
 # Unless you are sourcing a new tab, leave this as is
 
 server <- function(input, output) {
-  
+
   source("src/server/server_interactive_map.R", local = TRUE)$value
-  
+  source("src/server/server_seasons.R", local = TRUE)$value
+
 }
 
 shinyApp(ui = ui, server = server)

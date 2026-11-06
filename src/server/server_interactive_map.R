@@ -33,7 +33,7 @@ im_data <- reactive({
 observe({
   updateSliderInput(session, "im_fatal", value = c(1, max(accident_cleaned$Fatalities)))
   updateSliderInput(session, "im_hour",
-                    value = c(im_hour_min, im_hour_max),
+                    value = c(as.POSIXct("2024-01-01 00:00", tz = "UTC"), as.POSIXct("2024-01-01 23:00", tz = "UTC")),
                     timeFormat = "%I %p",
                     timezone = "+0000")
   updateDateRangeInput(session, "im_date", 

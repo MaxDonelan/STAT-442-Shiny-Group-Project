@@ -32,7 +32,7 @@ nav_panel(
                      max = "2024-12-31" 
       ),
       selectizeInput("im_weather",
-                     label = "Weather Conditions", 
+                     label = "Weather Conditions",
                      choices = c("All", unique(accident_cleaned$Weather))
       ),
       selectizeInput("im_light", 

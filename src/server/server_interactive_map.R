@@ -28,6 +28,17 @@ im_data <- reactive({
   im_filtered_data
 })
 
+im_labels <- reactive({
+  req(im_data)
+  im_data |> transmute(
+    Label = paste0(
+      "<b>Crash Info</b>",
+      "<hr>",
+      "<i>Date: </i>", Date, "<br>"  
+    )
+  )
+})
+
 # observers --------------------------------------------------------------------
 
 observe({
@@ -54,8 +65,9 @@ observe({
       radius = 5,
       stroke = FALSE,
       fillOpacity = 0.5,
-      clusterOptions = markerClusterOptions()
-    )
+      clusterOptions = markerClusterOptions(),
+      label = im_labels()$Label
+   )
 })
 
 # renders ----------------------------------------------------------------------

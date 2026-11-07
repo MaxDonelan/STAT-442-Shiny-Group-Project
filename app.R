@@ -18,6 +18,9 @@ library(leaflet)
 library(tigris)
 library(sf)
 library(bsicons)
+library(tigris)
+library(sf)
+library(bsicons)
 
 # data -------------------------------------------------------------------------
 
@@ -98,7 +101,8 @@ ui <- page_navbar(
   # each file is a tab
   source("src/ui/ui_interactive_map.R", local = TRUE)$value, # need local = TRUE to use environment created by the app as it runs
   source("src/ui/ui_thomas.R", local = TRUE)$value,
-  source("src/ui/ui_carter.R", local = TRUE)$value
+  source("src/ui/ui_carter.R", local = TRUE)$value,
+  ssource("src/ui/ui_seasons.R", local = TRUE)$value
   
   
 )
@@ -116,8 +120,8 @@ server <- function(input, output, session) {
   source("src/server/server_thomas.R", local = TRUE)$value
   
   source("src/server/server_carter.R", local = TRUE)$value
+  
+  source("src/server/server_seasons.R", local = TRUE)$value
 }
 
 shinyApp(ui = ui, server = server)
-
-

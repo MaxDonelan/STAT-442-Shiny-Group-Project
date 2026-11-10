@@ -102,7 +102,7 @@ ui <- page_navbar(
   source("src/ui/ui_interactive_map.R", local = TRUE)$value, # need local = TRUE to use environment created by the app as it runs
   source("src/ui/ui_thomas.R", local = TRUE)$value,
   source("src/ui/ui_carter.R", local = TRUE)$value,
-  ssource("src/ui/ui_seasons.R", local = TRUE)$value
+  source("src/ui/ui_seasons.R", local = TRUE)$value
   
   
 )

@@ -1,7 +1,9 @@
 nav_panel(
   title = tagList(bsicons::bs_icon("geo-alt-fill"), " Analysis by State"),
-  
   layout_sidebar(
+    padding = 0,
+    border = FALSE,
+    border_radius = FALSE,
     sidebar = sidebar(
       
       # Choose Year
@@ -45,6 +47,6 @@ nav_panel(
       )
     ),
     
-    leafletOutput(outputId = "state_map", height = "600px")
+    leafletOutput(outputId = "state_map", height = "100%")
   )
 )

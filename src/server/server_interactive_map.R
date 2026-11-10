@@ -46,17 +46,41 @@ observe({
 
 observe({
   leafletProxy("im_leaflet_map", data = im_data()) |>
+    clearPopups() |>
     clearMarkerClusters() |>
     clearMarkers() |>
     addCircleMarkers(
       lng = ~Longitude,
       lat = ~Latitude,
+      layerId = ~ST_CASE,   # unique crash ID, sent back when a marker is clicked
       radius = 5,
       stroke = FALSE,
       fillOpacity = 0.5,
-      clusterOptions = markerClusterOptions()
+      clusterOptions = markerClusterOptions(chunkedLoading = TRUE)
     )
 })
+
+# show info for one crash only when its marker is clicked
+observe({
+  click <- input$im_leaflet_map_marker_click
+  crash <- accident_cleaned |> filter(ST_CASE == click$id)
+  req(nrow(crash) == 1)
+
+  leafletProxy("im_leaflet_map") |>
+    clearPopups() |>
+    addPopups(
+      lng = click$lng,
+      lat = click$lat,
+      popup = paste0(
+        "<b>Crash Info</b><hr>",
+        "<i>Date:</i> ", format(crash$Date, "%B %d, %Y"), "<br>",
+        "<i>Time:</i> ", crash$Hour, "<br>",
+        "<i>Fatalities:</i> ", crash$Fatalities, "<br>",
+        "<i>Weather:</i> ", crash$Weather, "<br>",
+        "<i>Light:</i> ", crash$`Light Conditions`
+      )
+    )
+}) |> bindEvent(input$im_leaflet_map_marker_click)
 
 # renders ----------------------------------------------------------------------
 

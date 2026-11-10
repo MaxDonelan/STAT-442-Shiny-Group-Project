@@ -39,6 +39,7 @@ nav_panel(
                      label = "Light Conditions", 
                      choices = c("All", unique(accident_cleaned$`Light Conditions`))
       ),
+      HTML("<i>Click on a individual node (blue) to see details</i>"),
       hr(),
       input_task_button("im_reset",
                         label = "Reset",

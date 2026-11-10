@@ -96,8 +96,11 @@ ui <- page_navbar(
       }
     "),
   title = "Traffic Fatalities",
-  header = div(input_dark_mode(id = "ide_mode", mode = "dark"),
-               style = "text-align: right;"),
+  header = div(
+    class = "d-flex justify-content-between align-items-center px-3",
+    HTML("<i>Source: NHTSA Fatality Analysis Reporting System</i>"),
+    input_dark_mode(mode = "dark")
+  ),
   # each file is a tab
   source("src/ui/ui_interactive_map.R", local = TRUE)$value, # need local = TRUE to use environment created by the app as it runs
   source("src/ui/ui_thomas.R", local = TRUE)$value,

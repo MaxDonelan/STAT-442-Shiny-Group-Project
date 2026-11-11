@@ -20,7 +20,22 @@ nav_panel(
       )
     ),
     helpText("Explore how fatal crashes and fatalities vary throughout the year. Counts do not adjust for traffic volume or the number of days in each season."),
-    textOutput("seasons_summary"),
+    layout_columns(
+      col_widths = c(6, 6),
+      fill = FALSE,
+      value_box(
+        title = textOutput("seasons_crashes_title", inline = TRUE),
+        value = textOutput("seasons_crashes_value", inline = TRUE),
+        showcase = icon("car-burst"),
+        theme = "primary"
+      ),
+      value_box(
+        title = textOutput("seasons_fatalities_title", inline = TRUE),
+        value = textOutput("seasons_fatalities_value", inline = TRUE),
+        showcase = icon("user-injured"),
+        theme = "danger"
+      )
+    ),
     card(
       full_screen = TRUE,
       card_header("Seasonal comparison"),

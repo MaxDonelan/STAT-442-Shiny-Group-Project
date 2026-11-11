@@ -56,15 +56,24 @@ seasons_plot_theme <- reactive({
     )
 })
 
-output$seasons_summary <- renderText({
-  result <- seasons_filtered()
-  paste0(
-    #paste(sort(unique(accident$YEAR)), collapse = ", "), " | ",
-    if (input$seasons_state == "all") "All states" else input$seasons_state,
-    ": ", format(nrow(result), big.mark = ","), " fatal crashes and ",
-    format(sum(result$FATALS, na.rm = TRUE), big.mark = ","), " fatalities.",
-    if (nrow(result) == 0) " No records match these filters." else ""
-  )
+seasons_state_label <- reactive({
+  if (input$seasons_state == "all") "All states" else input$seasons_state
+})
+
+output$seasons_crashes_title <- renderText({
+  paste0("Fatal crashes (", seasons_state_label(), ")")
+})
+
+output$seasons_crashes_value <- renderText({
+  format(nrow(seasons_filtered()), big.mark = ",")
+})
+
+output$seasons_fatalities_title <- renderText({
+  paste0("Fatalities (", seasons_state_label(), ")")
+})
+
+output$seasons_fatalities_value <- renderText({
+  format(sum(seasons_filtered()$FATALS, na.rm = TRUE), big.mark = ",")
 })
 
 output$seasons_comparison <- renderPlot({

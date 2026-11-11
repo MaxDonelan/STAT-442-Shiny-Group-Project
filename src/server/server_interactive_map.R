@@ -10,9 +10,16 @@ im_data <- reactive({
   im_filtered_data <- im_crashes |>
     filter(
       between(Fatalities, input$im_fatal[1], input$im_fatal[2]),
-      between(Date, input$im_date[1], input$im_date[2]),
-      between(hour_num, hrs[1], hrs[2])
+      between(Date, input$im_date[1], input$im_date[2])
     )
+  # Crashes with an unknown hour (~250) can't be placed in a narrower range,
+  # so they are only shown when the full day is selected
+  if (hrs[1] > 0 || hrs[2] < 23) {
+    im_filtered_data <- im_filtered_data |>
+      filter(
+        between(hour_num, hrs[1], hrs[2])
+      )
+  }
   if (input$im_weather != "All") {
     im_filtered_data <- im_filtered_data |> 
       filter(
@@ -89,7 +96,7 @@ observe({
       popup = paste0(
         "<b>Crash Info</b><hr>",
         "<i>Date:</i> ", format(crash$Date, "%B %d, %Y"), "<br>",
-        "<i>Time:</i> ", crash$Hour, "<br>",
+        "<i>Time:</i> ", if (is.na(crash$Hour)) "Unknown" else crash$Hour, "<br>",
         "<i>Fatalities:</i> ", crash$Fatalities, "<br>",
         "<i>Weather:</i> ", crash$Weather, "<br>",
         "<i>Light:</i> ", crash$`Light Conditions`

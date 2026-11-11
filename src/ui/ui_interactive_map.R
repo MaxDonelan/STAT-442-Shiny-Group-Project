@@ -24,6 +24,7 @@ nav_panel(
                   step = 3600,
                   timeFormat = "%I %p",   # 12 AM, 01 AM, ... 11 PM
                   timezone = "+0000"),
+      helpText("Crashes with an unknown time are only shown when all hours are selected."),
       dateRangeInput("im_date", 
                      label = "Date Range", 
                      start = "2024-01-01", 

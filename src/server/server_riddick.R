@@ -64,7 +64,10 @@ output$rural_population_map <- renderPlot({
     
     riddick_map_theme()
   
-}, res = 96, bg = "transparent")
+}, res = 96, bg = "transparent") |>
+  # The data never changes, so each map only has to be drawn once per theme
+  # (and plot size) for all users; later requests reuse the cached image
+  bindCache(input$ide_mode)
 
 
 # ==================================================
@@ -97,7 +100,10 @@ output$urban_population_map <- renderPlot({
     
     riddick_map_theme()
   
-}, res = 96, bg = "transparent")
+}, res = 96, bg = "transparent") |>
+  # The data never changes, so each map only has to be drawn once per theme
+  # (and plot size) for all users; later requests reuse the cached image
+  bindCache(input$ide_mode)
 
 
 # ==================================================
@@ -132,7 +138,10 @@ output$vmt_map <- renderPlot({
     
     riddick_map_theme(title_size = 17, subtitle_size = 12, plot_margin = 10)
   
-}, res = 96, bg = "transparent")
+}, res = 96, bg = "transparent") |>
+  # The data never changes, so each map only has to be drawn once per theme
+  # (and plot size) for all users; later requests reuse the cached image
+  bindCache(input$ide_mode)
 
 
 # ==================================================

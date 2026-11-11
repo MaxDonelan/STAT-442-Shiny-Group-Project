@@ -49,6 +49,10 @@ nav_panel(
         tags$p(
           "Based on people involved in recorded fatal crashes.",
           style = "font-size: 11px; opacity: 0.75;"
+        ),
+        tags$p(
+          "170 crashes (181 deaths) with unknown locations are not shown on the map.",
+          style = "font-size: 12px; color: #D1D5DB;"
         )
       )
     ),

@@ -9,8 +9,10 @@
 arni_crashes <- accident |>
   distinct(STATE, ST_CASE, .keep_all = TRUE) |>
   mutate(
+    # PERSONS only counts people in vehicles; PEDS adds pedestrians,
+    # cyclists and other non-motorists, who are included in FATALS.
     People_Involved = suppressWarnings(
-      as.numeric(as.character(PERSONS))
+      as.numeric(as.character(PERSONS)) + as.numeric(as.character(PEDS))
     ),
     Deaths = suppressWarnings(
       as.numeric(as.character(FATALS))

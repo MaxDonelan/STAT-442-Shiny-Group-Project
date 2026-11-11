@@ -54,8 +54,7 @@ accident_cleaned <- accident |>
   transmute(
     State = STATENAME,
     ST_CASE = ST_CASE,
-    Date = as.Date(paste0(YEAR, "-", MONTH, "-", DAY)),
-    `Psuedo Hour` = as.POSIXct(HOURNAME, format = "%H"),
+    Date = as.Date(paste0(YEAR, "-", MONTH, "-", DAY)),,
     Hour = factor(HOURNAME,
                   levels = c(
                     "12:00am-12:59am",

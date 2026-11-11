@@ -8,7 +8,8 @@ nav_panel(
     border = FALSE,
     border_radius = FALSE,
     sidebar = sidebar(
-      "Filters",
+      h3("Filters"),
+      hr(),
       sliderInput("im_fatal", 
                   label = "Number of fatalities", 
                   min = 1, 
@@ -31,13 +32,15 @@ nav_panel(
                      max = "2024-12-31" 
       ),
       selectizeInput("im_weather",
-                     label = "Weather Conditions", 
+                     label = "Weather Conditions",
                      choices = c("All", unique(accident_cleaned$Weather))
       ),
       selectizeInput("im_light", 
                      label = "Light Conditions", 
                      choices = c("All", unique(accident_cleaned$`Light Conditions`))
       ),
+      HTML("<i>Click on a individual node (blue) to see details</i>"),
+      hr(),
       input_task_button("im_reset",
                         label = "Reset",
                         icon = icon("rotate-left"), 

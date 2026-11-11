@@ -17,13 +17,11 @@ map_coordinates <- coord_sf(
 
 # Transparent backgrounds inherit the card color; text follows the dark mode toggle.
 riddick_map_theme <- function(title_size = 16, subtitle_size = 11, plot_margin = 5) {
-  foreground <- if (identical(input$ide_mode, "light")) "#212529" else "#DEE2E6"
+  # plot_foreground() and theme_transparent() are in src/global/global_theme.R
   theme_void() +
+    theme_transparent() +
     theme(
-      plot.background = element_rect(fill = "transparent", colour = NA),
-      panel.background = element_rect(fill = "transparent", colour = NA),
-      legend.background = element_rect(fill = "transparent", colour = NA),
-      text = element_text(colour = foreground),
+      text = element_text(colour = plot_foreground(input$ide_mode)),
       plot.title = element_text(size = title_size, face = "bold"),
       plot.subtitle = element_text(size = subtitle_size),
       legend.position = "bottom",
@@ -191,11 +189,11 @@ output$crash_rate_map <- renderLeaflet({
   
   
   # Build map
-  leaflet(crash_map_data) %>%
+  leaflet(crash_map_data) |>
     
     addProviderTiles(
       providers$OpenStreetMap.Mapnik
-    ) %>%
+    ) |>
     
     addPolygons(
       
@@ -224,7 +222,7 @@ output$crash_rate_map <- renderLeaflet({
         fillOpacity = 0.95,
         bringToFront = TRUE
       )
-    ) %>%
+    ) |>
     
     addLegend(
       position = "bottomright",
@@ -233,7 +231,7 @@ output$crash_rate_map <- renderLeaflet({
       title = "Rural - Urban<br>Rate Difference",
       labFormat = labelFormat(digits = 2),
       na.label = "No data"
-    ) %>%
+    ) |>
     
     # Start centered on the continental US
     setView(lng = -98.5, lat = 39.8, zoom = 4)

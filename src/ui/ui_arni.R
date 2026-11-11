@@ -1,6 +1,3 @@
-
-1 + 1
-
 # ============================================================
 # STAT 442 - Shiny Group Project
 # Author: Arni Mwalumba

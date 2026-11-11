@@ -36,31 +36,16 @@ state_lookup <- data.frame(
 # 3. SUMMARIZE FATAL CRASHES BY STATE
 # ------------------------------------------------------------
 
-state_survival <- accident |>
-  
-  distinct(STATE, ST_CASE, .keep_all = TRUE) |>
-  
+# arni_crashes (one row per crash with valid counts) is built in
+# src/global/global_arni.R, which app.R sources before this file
+state_survival <- arni_crashes |>
+
   mutate(
     STATENAME = toupper(
       trimws(as.character(STATENAME))
-    ),
-    
-    People_Involved = suppressWarnings(
-      as.numeric(as.character(PERSONS))
-    ),
-    
-    Deaths = suppressWarnings(
-      as.numeric(as.character(FATALS))
     )
   ) |>
-  
-  filter(
-    !is.na(People_Involved),
-    !is.na(Deaths),
-    People_Involved >= Deaths,
-    Deaths >= 0
-  ) |>
-  
+
   inner_join(
     state_lookup,
     by = "STATENAME"

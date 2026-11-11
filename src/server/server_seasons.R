@@ -39,13 +39,12 @@ seasons_label <- reactive({
 })
 
 # Transparent backgrounds inherit the card color; labels follow the toggle.
+# plot_foreground() and theme_transparent() are in src/global/global_theme.R
 seasons_plot_theme <- reactive({
-  dark <- is.null(input$ide_mode) || identical(input$ide_mode, "dark")
-  foreground <- if (dark) "#DEE2E6" else "#212529"
+  foreground <- plot_foreground(input$ide_mode)
   theme_minimal(base_size = 14) +
+    theme_transparent() +
     theme(
-      plot.background = element_rect(fill = "transparent", colour = NA),
-      panel.background = element_rect(fill = "transparent", colour = NA),
       text = element_text(colour = foreground),
       axis.text = element_text(colour = foreground),
       axis.text.x = element_text(size = 18),
@@ -53,8 +52,7 @@ seasons_plot_theme <- reactive({
       axis.text.y = element_blank(),
       axis.ticks.y = element_blank(),
       axis.title.y = element_blank(),
-      axis.line.y = element_blank(),
-      legend.background = element_rect(fill = "transparent", colour = NA)
+      axis.line.y = element_blank()
     )
 })
 
@@ -95,7 +93,7 @@ output$seasons_monthly <- renderPlot({
     geom_text(
       aes(label = format(.data[[input$seasons_metric]], big.mark = ",", trim = TRUE, scientific = FALSE)),
       vjust = -1,
-      colour = if (identical(input$ide_mode, "light")) "#212529" else "#DEE2E6",
+      colour = plot_foreground(input$ide_mode),
       size = 5, fontface = "bold"
     ) +
     scale_x_continuous(breaks = 1:12, labels = month.abb) +

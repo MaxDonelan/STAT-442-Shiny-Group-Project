@@ -53,121 +53,69 @@ plot_fatalities <- reactive({
 # ============================================================
 
 get_chart_theme <- function(mode) {
-  
-  dark_mode <- identical(mode, "dark")
-  
-  if (dark_mode) {
-    
-    theme_minimal(base_size = 18) +
-      theme(
-        plot.title = element_text(
-          face = "bold",
-          size = 24,
-          color = "#F8FAFC"
-        ),
-        
-        plot.subtitle = element_text(
-          size = 18,
-          color = "#CBD5E1"
-        ),
-        
-        axis.title = element_text(
-          face = "bold",
-          size = 20,
-          color = "#E2E8F0"
-        ),
-        
-        axis.text = element_text(
-          size = 17,
-          color = "#E2E8F0"
-        ),
-        
-        panel.grid.minor = element_blank(),
-        
-        panel.grid.major.y = element_blank(),
-        
-        panel.grid.major.x = element_line(
-          color = "#475569"
-        ),
-        
-        legend.position = "bottom",
-        
-        legend.title = element_blank(),
-        
-        legend.text = element_text(
-          size = 18,
-          color = "#E2E8F0"
-        ),
-        
-        plot.background = element_rect(
-          fill = "#212529",
-          color = NA
-        ),
-        
-        panel.background = element_rect(
-          fill = "#212529",
-          color = NA
-        ),
-        
-        plot.margin = margin(20, 25, 20, 20)
-      )
-    
+
+  # Only the colors differ between dark and light mode
+  colors <- if (identical(mode, "dark")) {
+    list(title = "#F8FAFC", subtitle = "#CBD5E1", text = "#E2E8F0",
+         grid = "#475569", background = "#212529")
   } else {
-    
-    theme_minimal(base_size = 18) +
-      theme(
-        plot.title = element_text(
-          face = "bold",
-          size = 24,
-          color = "#243447"
-        ),
-        
-        plot.subtitle = element_text(
-          size = 18,
-          color = "#68778A"
-        ),
-        
-        axis.title = element_text(
-          face = "bold",
-          size = 20,
-          color = "#435266"
-        ),
-        
-        axis.text = element_text(
-          size = 17,
-          color = "#435266"
-        ),
-        
-        panel.grid.minor = element_blank(),
-        
-        panel.grid.major.y = element_blank(),
-        
-        panel.grid.major.x = element_line(
-          color = "#E8EDF2"
-        ),
-        
-        legend.position = "bottom",
-        
-        legend.title = element_blank(),
-        
-        legend.text = element_text(
-          size = 18,
-          color = "#435266"
-        ),
-        
-        plot.background = element_rect(
-          fill = "#FFFFFF",
-          color = NA
-        ),
-        
-        panel.background = element_rect(
-          fill = "#FFFFFF",
-          color = NA
-        ),
-        
-        plot.margin = margin(20, 25, 20, 20)
-      )
+    list(title = "#243447", subtitle = "#68778A", text = "#435266",
+         grid = "#E8EDF2", background = "#FFFFFF")
   }
+
+  theme_minimal(base_size = 18) +
+    theme(
+      plot.title = element_text(
+        face = "bold",
+        size = 24,
+        color = colors$title
+      ),
+
+      plot.subtitle = element_text(
+        size = 18,
+        color = colors$subtitle
+      ),
+
+      axis.title = element_text(
+        face = "bold",
+        size = 20,
+        color = colors$text
+      ),
+
+      axis.text = element_text(
+        size = 17,
+        color = colors$text
+      ),
+
+      panel.grid.minor = element_blank(),
+
+      panel.grid.major.y = element_blank(),
+
+      panel.grid.major.x = element_line(
+        color = colors$grid
+      ),
+
+      legend.position = "bottom",
+
+      legend.title = element_blank(),
+
+      legend.text = element_text(
+        size = 18,
+        color = colors$text
+      ),
+
+      plot.background = element_rect(
+        fill = colors$background,
+        color = NA
+      ),
+
+      panel.background = element_rect(
+        fill = colors$background,
+        color = NA
+      ),
+
+      plot.margin = margin(20, 25, 20, 20)
+    )
 }
 
 # ============================================================

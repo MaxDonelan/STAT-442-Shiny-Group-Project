@@ -4,15 +4,11 @@
 # 2. PREPARE CRASH DATA
 # ------------------------------------------------------------
 
-arni_data <- accident |>
+# One row per crash with valid people/death counts. Shared by this tab and the
+# State Survival Comparison tab (src/global/global_arni_states.R).
+arni_crashes <- accident |>
   distinct(STATE, ST_CASE, .keep_all = TRUE) |>
   mutate(
-    map_lat = suppressWarnings(
-      as.numeric(as.character(LATITUDE))
-    ),
-    map_lon = suppressWarnings(
-      as.numeric(as.character(LONGITUD))
-    ),
     People_Involved = suppressWarnings(
       as.numeric(as.character(PERSONS))
     ),
@@ -21,14 +17,27 @@ arni_data <- accident |>
     )
   ) |>
   filter(
-    is.finite(map_lat),
-    is.finite(map_lon),
-    between(map_lat, -90, 90),
-    between(map_lon, -180, 180),
     !is.na(People_Involved),
     !is.na(Deaths),
     People_Involved >= Deaths,
     Deaths >= 0
+  )
+
+# Crashes with valid coordinates for the map
+arni_data <- arni_crashes |>
+  mutate(
+    map_lat = suppressWarnings(
+      as.numeric(as.character(LATITUDE))
+    ),
+    map_lon = suppressWarnings(
+      as.numeric(as.character(LONGITUD))
+    )
+  ) |>
+  filter(
+    is.finite(map_lat),
+    is.finite(map_lon),
+    between(map_lat, -90, 90),
+    between(map_lon, -180, 180)
   ) |>
   mutate(
     Survivors = People_Involved - Deaths

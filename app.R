@@ -9,20 +9,14 @@
 # add libraries as you need
 library(shiny)
 library(bslib)
-library(readr)
-library(ggplot2)
+library(bsicons)   # icons in tab titles
 library(htmltools)
 library(dplyr)
-library(paletteer)
-library(leaflet)
-library(tigris)
-library(sf)
-library(bsicons)
-library(tigris)
-library(sf)
-library(bsicons)
+library(tidyr)
+library(ggplot2)
 library(plotly)
-library(tidyr)   # pivot_wider() in src/global/global_riddick.R
+library(leaflet)
+library(sf)        # state outlines (us_states*.rds) are sf objects
 
 # data -------------------------------------------------------------------------
 
@@ -140,6 +134,7 @@ Crash_rates <- Fatal_crashes_by_state |>
 
 # Anything that doesn't depend on user input goes in src/global/ so it runs
 # once at startup instead of once per user session in the server files.
+source("src/global/global_theme.R", local = TRUE)
 source("src/global/global_interactive_map.R", local = TRUE)
 source("src/global/global_arni.R", local = TRUE)
 source("src/global/global_arni_states.R", local = TRUE)

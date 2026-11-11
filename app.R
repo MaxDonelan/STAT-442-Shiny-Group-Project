@@ -9,19 +9,14 @@
 # add libraries as you need
 library(shiny)
 library(bslib)
-library(readr)
-library(ggplot2)
+library(bsicons)   # icons in tab titles
 library(htmltools)
 library(dplyr)
-library(paletteer)
-library(leaflet)
-library(tigris)
-library(sf)
-library(bsicons)
-library(tigris)
-library(sf)
-library(bsicons)
+library(tidyr)
+library(ggplot2)
 library(plotly)
+library(leaflet)
+library(sf)        # state outlines (us_states*.rds) are sf objects
 
 # data -------------------------------------------------------------------------
 
@@ -57,18 +52,13 @@ accident_cleaned <- readRDS("data/accident_cleaned.rds") |>
   )
 accident <- readRDS("data/accident.rds") # I'll probably create a cleaned version eventually (as an FYI if you end up using it)
 
-person_cleaned <- readRDS("data/person_cleaned.rds") |>
-  mutate(
-    Fatal = factor(Fatal, levels = c("Dead", "Alive", "Unknown/Other"))
-)
-
 data24    <- readRDS("data/accidents_24.rds")
 data23    <- readRDS("data/accidents_23.rds")
 
-options(tigris_use_cache = TRUE)
-us_states <- states(cb = TRUE, year = 2022, resolution = "20m") |>
-  filter(NAME %in% c(state.name, "District of Columbia")) |>
-  st_transform(crs = 4326)
+# Pre-built by src/unsourced/prepare_app_data.R (re-run it if the source data changes)
+fatality_data     <- readRDS("data/fatalities_thomas.rds") # fatal-injury persons, Thomas tab
+us_states         <- readRDS("data/us_states.rds")         # state outlines for leaflet maps
+us_states_shifted <- readRDS("data/us_states_shifted.rds") # AK/HI moved, for static maps
 
 VMT_data <- readRDS("data/VMT_data.RDS")
 Rural_Urban_2024 <- readRDS("data/Rural_Urban_2024.RDS")
@@ -138,6 +128,19 @@ Crash_rates <- Fatal_crashes_by_state |>
   )
 
 
+# -------------------------------------------------------------------------
+# PER-TAB DATA PREP
+# -------------------------------------------------------------------------
+
+# Anything that doesn't depend on user input goes in src/global/ so it runs
+# once at startup instead of once per user session in the server files.
+source("src/global/global_theme.R", local = TRUE)
+source("src/global/global_interactive_map.R", local = TRUE)
+source("src/global/global_arni.R", local = TRUE)
+source("src/global/global_arni_states.R", local = TRUE)
+source("src/global/global_riddick.R", local = TRUE)
+
+
 # ui ---------------------------------------------------------------------------
 
 # IMPORTANT
@@ -166,7 +169,7 @@ ui <- page_navbar(
   title = "Traffic Fatalities",
   header = div(
     class = "d-flex justify-content-between align-items-center px-3",
-    HTML("<i>Source: NHTSA Fatality Analysis Reporting System</i>"),
+    HTML('<i>Source: NHTSA Fatality Analysis Reporting System <span style="color: grey;"> (2024 by default)</span></i>'),
     input_dark_mode(id = "ide_mode", mode = "dark")
   ),
   # each file is a tab

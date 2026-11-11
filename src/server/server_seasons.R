@@ -39,13 +39,12 @@ seasons_label <- reactive({
 })
 
 # Transparent backgrounds inherit the card color; labels follow the toggle.
+# plot_foreground() and theme_transparent() are in src/global/global_theme.R
 seasons_plot_theme <- reactive({
-  dark <- is.null(input$app_dark_mode) || identical(input$app_dark_mode, "dark")
-  foreground <- if (dark) "#DEE2E6" else "#212529"
+  foreground <- plot_foreground(input$ide_mode)
   theme_minimal(base_size = 14) +
+    theme_transparent() +
     theme(
-      plot.background = element_rect(fill = "transparent", colour = NA),
-      panel.background = element_rect(fill = "transparent", colour = NA),
       text = element_text(colour = foreground),
       axis.text = element_text(colour = foreground),
       axis.text.x = element_text(size = 18),
@@ -53,20 +52,28 @@ seasons_plot_theme <- reactive({
       axis.text.y = element_blank(),
       axis.ticks.y = element_blank(),
       axis.title.y = element_blank(),
-      axis.line.y = element_blank(),
-      legend.background = element_rect(fill = "transparent", colour = NA)
+      axis.line.y = element_blank()
     )
 })
 
-output$seasons_summary <- renderText({
-  result <- seasons_filtered()
-  paste0(
-    paste(sort(unique(accident$YEAR)), collapse = ", "), " | ",
-    if (input$seasons_state == "all") "All states" else input$seasons_state,
-    ": ", format(nrow(result), big.mark = ","), " fatal crashes and ",
-    format(sum(result$FATALS, na.rm = TRUE), big.mark = ","), " fatalities.",
-    if (nrow(result) == 0) " No records match these filters." else ""
-  )
+seasons_state_label <- reactive({
+  if (input$seasons_state == "all") "All states" else input$seasons_state
+})
+
+output$seasons_crashes_title <- renderText({
+  paste0("Fatal crashes (", seasons_state_label(), ")")
+})
+
+output$seasons_crashes_value <- renderText({
+  format(nrow(seasons_filtered()), big.mark = ",")
+})
+
+output$seasons_fatalities_title <- renderText({
+  paste0("Fatalities (", seasons_state_label(), ")")
+})
+
+output$seasons_fatalities_value <- renderText({
+  format(sum(seasons_filtered()$FATALS, na.rm = TRUE), big.mark = ",")
 })
 
 output$seasons_comparison <- renderPlot({
@@ -95,7 +102,7 @@ output$seasons_monthly <- renderPlot({
     geom_text(
       aes(label = format(.data[[input$seasons_metric]], big.mark = ",", trim = TRUE, scientific = FALSE)),
       vjust = -1,
-      colour = if (identical(input$app_dark_mode, "light")) "#212529" else "#DEE2E6",
+      colour = plot_foreground(input$ide_mode),
       size = 5, fontface = "bold"
     ) +
     scale_x_continuous(breaks = 1:12, labels = month.abb) +

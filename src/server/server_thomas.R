@@ -4,39 +4,9 @@
 # Author: Thomas Shields
 # ============================================================
 
-# Load person-level data
-persons <- readRDS("data/persons_thomas.rds")
-
-# ============================================================
-# Prepare fatality-level data
-# ============================================================
-
-fatality_data <- persons |>
-  dplyr::filter(INJ_SEVNAME == "Fatal Injury (K)") |>
-  dplyr::mutate(
-    SEX_LABEL = dplyr::case_when(
-      SEX == 1 ~ "Male",
-      SEX == 2 ~ "Female",
-      TRUE ~ "Unknown / Other"
-    ),
-    
-    ROAD_TYPE = dplyr::case_when(
-      FUNC_SYS == 1 ~ "Interstate",
-      FUNC_SYS == 2 ~ "Other Freeway / Expressway",
-      FUNC_SYS == 3 ~ "Other Principal Arterial",
-      FUNC_SYS == 4 ~ "Minor Arterial",
-      FUNC_SYS == 5 ~ "Major Collector",
-      FUNC_SYS == 6 ~ "Minor Collector",
-      FUNC_SYS == 7 ~ "Local Road",
-      TRUE ~ "Unknown / Other"
-    ),
-    
-    AREA_TYPE = dplyr::case_when(
-      RUR_URB == 1 ~ "Rural",
-      RUR_URB == 2 ~ "Urban",
-      TRUE ~ "Unknown / Other"
-    )
-  )
+# fatality_data (fatal-injury persons with SEX_LABEL, ROAD_TYPE and AREA_TYPE)
+# is loaded once in app.R from data/fatalities_thomas.rds, which is built by
+# src/unsourced/prepare_app_data.R.
 
 # ============================================================
 # Filter by year
@@ -83,121 +53,69 @@ plot_fatalities <- reactive({
 # ============================================================
 
 get_chart_theme <- function(mode) {
-  
-  dark_mode <- identical(mode, "dark")
-  
-  if (dark_mode) {
-    
-    theme_minimal(base_size = 18) +
-      theme(
-        plot.title = element_text(
-          face = "bold",
-          size = 24,
-          color = "#F8FAFC"
-        ),
-        
-        plot.subtitle = element_text(
-          size = 18,
-          color = "#CBD5E1"
-        ),
-        
-        axis.title = element_text(
-          face = "bold",
-          size = 20,
-          color = "#E2E8F0"
-        ),
-        
-        axis.text = element_text(
-          size = 17,
-          color = "#E2E8F0"
-        ),
-        
-        panel.grid.minor = element_blank(),
-        
-        panel.grid.major.y = element_blank(),
-        
-        panel.grid.major.x = element_line(
-          color = "#475569"
-        ),
-        
-        legend.position = "bottom",
-        
-        legend.title = element_blank(),
-        
-        legend.text = element_text(
-          size = 18,
-          color = "#E2E8F0"
-        ),
-        
-        plot.background = element_rect(
-          fill = "#212529",
-          color = NA
-        ),
-        
-        panel.background = element_rect(
-          fill = "#212529",
-          color = NA
-        ),
-        
-        plot.margin = margin(20, 25, 20, 20)
-      )
-    
+
+  # Only the colors differ between dark and light mode
+  colors <- if (identical(mode, "dark")) {
+    list(title = "#F8FAFC", subtitle = "#CBD5E1", text = "#E2E8F0",
+         grid = "#475569", background = "#212529")
   } else {
-    
-    theme_minimal(base_size = 18) +
-      theme(
-        plot.title = element_text(
-          face = "bold",
-          size = 24,
-          color = "#243447"
-        ),
-        
-        plot.subtitle = element_text(
-          size = 18,
-          color = "#68778A"
-        ),
-        
-        axis.title = element_text(
-          face = "bold",
-          size = 20,
-          color = "#435266"
-        ),
-        
-        axis.text = element_text(
-          size = 17,
-          color = "#435266"
-        ),
-        
-        panel.grid.minor = element_blank(),
-        
-        panel.grid.major.y = element_blank(),
-        
-        panel.grid.major.x = element_line(
-          color = "#E8EDF2"
-        ),
-        
-        legend.position = "bottom",
-        
-        legend.title = element_blank(),
-        
-        legend.text = element_text(
-          size = 18,
-          color = "#435266"
-        ),
-        
-        plot.background = element_rect(
-          fill = "#FFFFFF",
-          color = NA
-        ),
-        
-        panel.background = element_rect(
-          fill = "#FFFFFF",
-          color = NA
-        ),
-        
-        plot.margin = margin(20, 25, 20, 20)
-      )
+    list(title = "#243447", subtitle = "#68778A", text = "#435266",
+         grid = "#E8EDF2", background = "#FFFFFF")
   }
+
+  theme_minimal(base_size = 18) +
+    theme(
+      plot.title = element_text(
+        face = "bold",
+        size = 24,
+        color = colors$title
+      ),
+
+      plot.subtitle = element_text(
+        size = 18,
+        color = colors$subtitle
+      ),
+
+      axis.title = element_text(
+        face = "bold",
+        size = 20,
+        color = colors$text
+      ),
+
+      axis.text = element_text(
+        size = 17,
+        color = colors$text
+      ),
+
+      panel.grid.minor = element_blank(),
+
+      panel.grid.major.y = element_blank(),
+
+      panel.grid.major.x = element_line(
+        color = colors$grid
+      ),
+
+      legend.position = "bottom",
+
+      legend.title = element_blank(),
+
+      legend.text = element_text(
+        size = 18,
+        color = colors$text
+      ),
+
+      plot.background = element_rect(
+        fill = colors$background,
+        color = NA
+      ),
+
+      panel.background = element_rect(
+        fill = colors$background,
+        color = NA
+      ),
+
+      plot.margin = margin(20, 25, 20, 20)
+    )
 }
 
 # ============================================================

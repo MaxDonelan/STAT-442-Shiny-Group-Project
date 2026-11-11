@@ -14,106 +14,6 @@
 # - Red death rate and green survival rate
 # ============================================================
 
-library(shiny)
-library(dplyr)
-library(leaflet)
-
-# ------------------------------------------------------------
-# 1. LOAD DATA
-# ------------------------------------------------------------
-
-# The main app already loads accident.rds.
-# Fallback if the object is missing.
-
-if (!exists("accident")) {
-  accident <- readRDS("data/accident.rds")
-}
-
-# ------------------------------------------------------------
-# 2. PREPARE CRASH DATA
-# ------------------------------------------------------------
-
-arni_data <- accident |>
-  distinct(STATE, ST_CASE, .keep_all = TRUE) |>
-  mutate(
-    map_lat = suppressWarnings(
-      as.numeric(as.character(LATITUDE))
-    ),
-    map_lon = suppressWarnings(
-      as.numeric(as.character(LONGITUD))
-    ),
-    People_Involved = suppressWarnings(
-      as.numeric(as.character(PERSONS))
-    ),
-    Deaths = suppressWarnings(
-      as.numeric(as.character(FATALS))
-    )
-  ) |>
-  filter(
-    is.finite(map_lat),
-    is.finite(map_lon),
-    between(map_lat, -90, 90),
-    between(map_lon, -180, 180),
-    !is.na(People_Involved),
-    !is.na(Deaths),
-    People_Involved >= Deaths,
-    Deaths >= 0
-  ) |>
-  mutate(
-    Survivors = People_Involved - Deaths
-  )
-
-# ------------------------------------------------------------
-# 3. CREATE POPUP INFORMATION
-# ------------------------------------------------------------
-
-fmt_arni <- function(x) {
-  format(
-    round(x),
-    big.mark = ",",
-    scientific = FALSE,
-    trim = TRUE
-  )
-}
-
-arni_data <- arni_data |>
-  mutate(
-    Death_Pct = if_else(
-      People_Involved > 0,
-      100 * Deaths / People_Involved,
-      NA_real_
-    ),
-    
-    Survival_Pct = if_else(
-      People_Involved > 0,
-      100 * Survivors / People_Involved,
-      NA_real_
-    ),
-    
-    popup_text = paste0(
-      "<b>State:</b> ",
-      htmltools::htmlEscape(as.character(STATENAME)),
-      "<br><b>People Involved:</b> ",
-      People_Involved,
-      "<br><b>Deaths:</b> ",
-      Deaths,
-      "<br><b>Survivors:</b> ",
-      Survivors,
-      "<br><b>Death Rate:</b> ",
-      ifelse(
-        is.na(Death_Pct),
-        "N/A",
-        sprintf("%.2f%%", Death_Pct)
-      ),
-      "<br><b>Survival Rate:</b> ",
-      ifelse(
-        is.na(Survival_Pct),
-        "N/A",
-        sprintf("%.2f%%", Survival_Pct)
-      )
-    )
-  )
-
 # ------------------------------------------------------------
 # 4. CREATE THE INTERACTIVE MAP
 # ------------------------------------------------------------
@@ -151,16 +51,33 @@ output$arni_map <- renderLeaflet({
       fillOpacity = 0.75,
       stroke = FALSE,
       
-      popup = ~popup_text,
-      
+      # Popups are built on click (see below); only the ID is sent up front
+      layerId = ~arni_id,
+
       clusterOptions = markerClusterOptions(
         showCoverageOnHover = FALSE,
         zoomToBoundsOnClick = TRUE,
         spiderfyOnMaxZoom = TRUE,
-        maxClusterRadius = 65
+        maxClusterRadius = 65,
+        chunkedLoading = TRUE   # add markers in batches so the page stays responsive
       )
     )
 })
+
+# Show the popup for one crash when its marker is clicked
+observe({
+  click <- input$arni_map_marker_click
+  crash <- arni_data[arni_data$arni_id == click$id, ]
+  req(nrow(crash) == 1)
+
+  leafletProxy("arni_map") |>
+    clearPopups() |>
+    addPopups(
+      lng = click$lng,
+      lat = click$lat,
+      popup = arni_popup(crash)
+    )
+}) |> bindEvent(input$arni_map_marker_click)
 
 # ------------------------------------------------------------
 # 5. IDENTIFY ACCIDENTS IN VISIBLE MAP AREA
@@ -435,9 +352,9 @@ output$arni_survival_stats <- renderUI({
     
     tags$hr(),
     
-    tags$p(
-      "Move or zoom the map to explore another area.",
-      style = "font-size: 12px; color: #D1D5DB;"
-    )
+    # tags$p(
+    #   "Move or zoom the map to explore another area.",
+    #   style = "font-size: 12px; color: #D1D5DB;"
+    # )
   )
 })

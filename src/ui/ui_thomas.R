@@ -21,7 +21,7 @@ nav_panel(
           "2023" = "2023",
           "2024" = "2024"
         ),
-        selected = "both"
+        selected = "2024"
       ),
       
       hr(),

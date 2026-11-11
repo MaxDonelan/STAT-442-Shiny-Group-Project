@@ -268,6 +268,9 @@ output$crash_rate_map <- renderLeaflet({
       title = "Rural - Urban<br>Rate Difference",
       labFormat = labelFormat(digits = 2),
       na.label = "No data"
-    )
+    ) %>%
+    
+    # Start centered on the continental US
+    setView(lng = -98.5, lat = 39.8, zoom = 4)
   
 })

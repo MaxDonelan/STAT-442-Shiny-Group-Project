@@ -1,13 +1,28 @@
 # STAT-442-Shiny-Group-Project
 
-This repository has the code for the STAT 442 Group Shiny App.
+This repository has the code for the STAT 442 Group Shiny App project.
 
-Each of us will create one tab in the app. Please create R files containing your ui and server code (in the corresponding folders in /src) and source them into the main app. **Don't put tab-specific code in app.R** (except for loading data).
+## App Tabs
 
-Use the src/unsourced folder to hold any data cleaning code, then store the results in the data folder and load in app.R. **Don't perform data cleaning app.R**.
+All data comes from the NHTSA Fatality Analysis Reporting System (FARS). Tabs use 2024 data unless noted otherwise.
 
-Be careful using other people's server code; I would recommend keeping each tab completely self-contained.
+### Interactive Map
+A Leaflet map of every fatal crash in 2024, with nearby crashes grouped into clusters that split apart as you zoom in. The sidebar filters crashes by number of fatalities, hour of day, date range, weather, and light conditions, and a Reset button restores the defaults. Click an individual crash point to see its details. Crashes with an unknown time only appear when all hours are selected.
 
-To work on the app: clone the repo onto your computer (downloading the GitHub desktop app might be helpful), create a new branch (e.g. your name), make your changes, publish your branch, and submit a pull request with main. You may need to be a collaborator to make a branch. If so, email me (Max) your github account name. Otherwise, try creating a fork of the repository and working with that.
+### Male V.S. Female
+Compares traffic fatalities by sex for 2023, 2024, or both years combined. Three charts show the male/female split overall, within each road classification, and in rural vs. urban areas. A checkbox narrows the data from all fatalities (drivers, passengers, and pedestrians) to drivers only. Records with unknown sex are excluded.
 
-Finally, it might be a good idea to periodically pull main to see if there have been changes.
+### Analysis by State
+A choropleth map of U.S. states that can be colored by rate per 100,000 people or by percentage. Filters choose the year (2023 or 2024), time of day (morning, afternoon, night), crash type (all, impaired, or distracted), and whether to count crashes or fatalities.
+
+### Seasons
+Shows how fatal crashes and fatalities change over the year, for the whole country or one selected state. Summary value boxes, a season-by-season comparison chart, a monthly trend chart, and a table of season totals are included. Seasons are defined as winter (Dec–Feb), spring (Mar–May), summer (Jun–Aug), and fall (Sep–Nov); counts are not adjusted for traffic volume or season length.
+
+### Survival Analysis
+A clustered map of people involved in fatal crashes. As you pan and zoom, the sidebar updates survival statistics (survival rate = survivors / people involved) for whatever area is currently visible. Crashes with unknown locations are left off the map.
+
+### State Survival Comparison
+A horizontally scrolling interactive bar chart that compares survivors and deaths for each state. States are grouped by region, with regions and the states within them ranked from highest to lowest survival rate. Bar heights show the actual number of people involved. These rates describe people in recorded fatal crashes, not the chance of surviving all traffic accidents.
+
+### Rural vs. Urban
+Pick one of three views: side-by-side maps of each state's rural and urban population share, a map of total vehicle miles traveled (VMT) by state, or an interactive map of rural and urban fatal crash rates per 100 million VMT. Hover over a state in the crash-rate map to compare its rural and urban rates; a positive difference means the rural rate is higher.

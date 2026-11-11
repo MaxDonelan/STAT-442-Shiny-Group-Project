@@ -1,56 +1,125 @@
 
 # ==================================================
-# RURAL VS. URBAN FATAL CRASH ANALYSIS
-# 2024 DATA
-# USER INTERFACE
+# 2024 RURAL VS. URBAN FATAL CRASH ANALYSIS
+# UI
 # ==================================================
-
-
 
 nav_panel(
   
-  # Page title
-  title = ("2024 Rural vs. Urban Fatal Crash Analysis"),
+  title = "2024 Rural vs. Urban Fatal Crash Analysis",
   
-  # Sidebar and main panel
-  sidebarLayout(
+  layout_sidebar(
     
-    sidebarPanel(
+    # SIDEBAR
+    sidebar = sidebar(
       
-      h4("Select Analysis"),
+      title = "Select Analysis",
       
-      # Choose which graph to display
       radioButtons(
         inputId = "graph_choice",
+        
         label = "Choose a visualization:",
+        
         choices = c(
           "Population Distribution" = "population",
           "Total VMT by State" = "vmt",
           "Fatal Crash Rates" = "rates"
         ),
+        
         selected = "population"
+      )
+    ),
+    
+    
+    # ==================================================
+    # POPULATION DISTRIBUTION
+    # ==================================================
+    
+    conditionalPanel(
+      
+      condition = "input.graph_choice == 'population'",
+      
+      h3("2024 Rural vs. Urban Population Distribution"),
+      
+      p(
+        "Compare the percentage of each state's population living in rural and urban areas."
       ),
       
-      # Only show state selection for crash rates
-      conditionalPanel(
-        condition = "input.graph_choice == 'rates'",
+      layout_columns(
         
-        selectInput(
-          inputId = "selected_state",
-          label = "Select a State:",
-          choices = NULL
+        col_widths = c(6, 6),
+        
+        card(
+          
+          card_header("Rural Population (%)"),
+          
+          plotOutput(
+            "rural_population_map",
+            height = "500px",
+            width = "100%"
+          )
+        ),
+        
+        card(
+          
+          card_header("Urban Population (%)"),
+          
+          plotOutput(
+            "urban_population_map",
+            height = "500px",
+            width = "100%"
+          )
         )
       )
     ),
     
-    # Main graph display
-    mainPanel(
+    
+    # ==================================================
+    # TOTAL VMT
+    # ==================================================
+    
+    conditionalPanel(
       
-      h3(textOutput("graph_title")),
+      condition = "input.graph_choice == 'vmt'",
       
-      plotOutput(
-        outputId = "comparison_plot",
-        height = "850px"
+      card(
+        
+        card_header("2024 Total Vehicle Miles Traveled"),
+        
+        p(
+          "Total rural and urban vehicle miles traveled combined by state."
+        ),
+        
+        plotOutput(
+          "vmt_map",
+          height = "600px",
+          width = "100%"
+        )
+      )
+    ),
+    
+    
+    # ==================================================
+    # FATAL CRASH RATES
+    # ==================================================
+    
+    conditionalPanel(
+      
+      condition = "input.graph_choice == 'rates'",
+      
+      card(
+        
+        card_header("Rural vs. Urban Fatal Crash Rates"),
+        
+        p(
+          "Hover over a state to compare rural and urban fatal crash rates. Positive differences indicate a higher rural rate."
+        ),
+        
+        leafletOutput(
+          "crash_rate_map",
+          height = "650px",
+          width = "100%"
+        )
       )
     )
   )

@@ -58,6 +58,25 @@ map_coordinates <- coord_sf(
 )
 
 
+# Transparent backgrounds inherit the card color; text follows the dark mode toggle.
+riddick_map_theme <- function(title_size = 16, subtitle_size = 11, plot_margin = 5) {
+  foreground <- if (identical(input$ide_mode, "light")) "#212529" else "#DEE2E6"
+  theme_void() +
+    theme(
+      plot.background = element_rect(fill = "transparent", colour = NA),
+      panel.background = element_rect(fill = "transparent", colour = NA),
+      legend.background = element_rect(fill = "transparent", colour = NA),
+      text = element_text(colour = foreground),
+      plot.title = element_text(size = title_size, face = "bold"),
+      plot.subtitle = element_text(size = subtitle_size),
+      legend.position = "bottom",
+      plot.margin = margin(plot_margin, plot_margin, plot_margin, plot_margin),
+      legend.title = element_text(size = 10),
+      legend.text = element_text(size = 9)
+    )
+}
+
+
 # ==================================================
 # 3. RURAL POPULATION MAP
 # ==================================================
@@ -86,21 +105,9 @@ output$rural_population_map <- renderPlot({
       subtitle = "Percentage of total state population"
     ) +
     
-    theme_void() +
-    
-    theme(
-      plot.title = element_text(
-        size = 16,
-        face = "bold"
-      ),
-      plot.subtitle = element_text(size = 11),
-      legend.position = "bottom",
-      plot.margin = margin(5, 5, 5, 5),
-      legend.title = element_text(size = 10),
-      legend.text = element_text(size = 9)
-    )
+    riddick_map_theme()
   
-}, res = 96)
+}, res = 96, bg = "transparent")
 
 
 # ==================================================
@@ -131,21 +138,9 @@ output$urban_population_map <- renderPlot({
       subtitle = "Percentage of total state population"
     ) +
     
-    theme_void() +
-    
-    theme(
-      plot.title = element_text(
-        size = 16,
-        face = "bold"
-      ),
-      plot.subtitle = element_text(size = 11),
-      legend.position = "bottom",
-      plot.margin = margin(5, 5, 5, 5),
-      legend.title = element_text(size = 10),
-      legend.text = element_text(size = 9)
-    )
+    riddick_map_theme()
   
-}, res = 96)
+}, res = 96, bg = "transparent")
 
 
 # ==================================================
@@ -178,21 +173,9 @@ output$vmt_map <- renderPlot({
       subtitle = "2024 rural and urban VMT combined"
     ) +
     
-    theme_void() +
-    
-    theme(
-      plot.title = element_text(
-        size = 17,
-        face = "bold"
-      ),
-      plot.subtitle = element_text(size = 12),
-      legend.position = "bottom",
-      plot.margin = margin(10, 10, 10, 10),
-      legend.title = element_text(size = 10),
-      legend.text = element_text(size = 9)
-    )
+    riddick_map_theme(title_size = 17, subtitle_size = 12, plot_margin = 10)
   
-}, res = 96)
+}, res = 96, bg = "transparent")
 
 
 # ==================================================

@@ -8,7 +8,7 @@
 # ============================================================
 
 nav_panel(
-  title = "Survival Analysis - Arni",
+  title = "Survival Analysis",
   icon = icon("heart-pulse"),
   
   layout_sidebar(

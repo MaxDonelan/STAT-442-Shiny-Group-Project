@@ -6,7 +6,7 @@
 
 nav_panel(
   
-  title = "2024 Rural vs. Urban Fatal Crash Analysis",
+  title = "Rural vs. Urban",
   
   layout_sidebar(
     

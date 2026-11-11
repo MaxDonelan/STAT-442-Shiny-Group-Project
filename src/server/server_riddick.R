@@ -1,289 +1,103 @@
-
-# ==================================================
-# 2024 RURAL VS. URBAN FATAL CRASH ANALYSIS
-# SERVER
-# ==================================================
+# Use VMT to compare rural vs. urban driving
+# Compare population, VMT, and fatal crash rates
 
 library(shiny)
+library(bslib)
 library(dplyr)
-library(tidyr)
 library(ggplot2)
-library(sf)
-library(leaflet)
-library(htmltools)
-library(scales)
 
+# Load datasets
+VMT <- read.csv("VMT_2024.csv")
+accidents <- read.csv("accident.csv")
+R_U_2024_pop <- read.csv("rural_urban_population_2024.csv")
 
-# ==================================================
-# 1. PREPARE MAP DATA
-# ==================================================
+# Clean state names
+accidents$STATENAME <- trimws(as.character(accidents$STATENAME))
+VMT$State <- trimws(as.character(VMT$State))
 
-# Join population and VMT information to state map
-map_data <- us_states %>%
-  left_join(
-    State_comparison,
-    by = c("NAME" = "State")
+# Remove Fclass if you aren't analyzing road classifications
+VMT <- VMT %>%
+  select(-any_of("Fclass"))
+
+# Convert VMT to numeric
+VMT$VMT <- as.numeric(gsub(",", "", as.character(VMT$VMT)))
+
+# Filter for 2024 if a Year column exists
+if ("Year" %in% names(VMT)) {
+  VMT <- VMT %>%
+    filter(as.numeric(as.character(Year)) == 2024)
+}
+
+#code to make ruraly vs urban percents/dist, show total VMT by state, look at fatal crash rates by r v u
+Population_by_state <- R_U_2024_pop %>%
+  select(State, Rural_Pct, Urban_Pct)
+
+VMT_by_state <- VMT %>%
+  group_by(State, Area) %>%
+  summarise(
+    VMT = sum(VMT, na.rm = TRUE),
+    .groups = "drop"
   )
 
+Total_VMT_by_state <- VMT_by_state %>%
+  group_by(State) %>%
+  summarise(
+    Total_VMT = sum(VMT, na.rm = TRUE),
+    .groups = "drop"
+  )
 
-# Reshape fatal crash rates into rural and urban columns
-crash_rate_data <- Crash_rates %>%
-  select(State, Area, Fatal_Crash_Rate) %>%
-  pivot_wider(
-    names_from = Area,
-    values_from = Fatal_Crash_Rate
+VMT_percentages <- VMT_by_state %>%
+  group_by(State) %>%
+  mutate(
+    Total_VMT = sum(VMT, na.rm = TRUE),
+    VMT_Pct = VMT / Total_VMT * 100
+  ) %>%
+  ungroup()
+
+Fatal_crashes_by_state <- accidents %>%
+  mutate(
+    Area = case_when(
+      grepl("rural", RUR_URBNAME, ignore.case = TRUE) ~ "Rural",
+      grepl("urban", RUR_URBNAME, ignore.case = TRUE) ~ "Urban",
+      TRUE ~ NA_character_
+    )
+  ) %>%
+  filter(!is.na(Area)) %>%
+  group_by(STATENAME, Area) %>%
+  summarise(
+    Fatal_Crashes = n(),
+    .groups = "drop"
+  )
+
+Crash_rates <- Fatal_crashes_by_state %>%
+  left_join(
+    VMT_by_state,
+    by = c("STATENAME" = "State", "Area")
   ) %>%
   mutate(
-    Rate_Difference = Rural - Urban
+    Fatal_Crash_Rate =
+      Fatal_Crashes / VMT * 100000000
   )
 
+# VMT column names
+names(VMT)
 
-# Join crash rates to state map
-crash_map_data <- us_states %>%
-  left_join(
-    crash_rate_data,
-    by = c("NAME" = "State")
-  )
+# Rural/urban categories in VMT
+unique(VMT$Area)
 
+# Accident column names
+names(accidents)
 
-# ==================================================
-# 2. MAP COORDINATES
-# ==================================================
+# Rural/urban categories in accidents
+unique(accidents$RUR_URBNAME)
 
-# Geographic extent that includes all 50 states
-map_coordinates <- coord_sf(
-  xlim = c(-179, -66),
-  ylim = c(17, 72),
-  expand = FALSE
-)
+#code to graph/map the side by side comparison + make it interactive
+#toggle 1 = population dist
+#toggle 2 = total vmt by state
+# toggle 3 = rates with state level interaction when using the 3rd graph
 
 
-# ==================================================
-# 3. RURAL POPULATION MAP
-# ==================================================
-
-output$rural_population_map <- renderPlot({
-  
-  ggplot(map_data) +
-    
-    geom_sf(
-      aes(fill = Rural_Pct),
-      color = "white",
-      linewidth = 0.3
-    ) +
-    
-    map_coordinates +
-    
-    scale_fill_viridis_c(
-      option = "C",
-      limits = c(0, 1),
-      labels = scales::label_percent(accuracy = 1),
-      name = "Rural Population"
-    ) +
-    
-    labs(
-      title = "Rural Population by State",
-      subtitle = "Percentage of total state population"
-    ) +
-    
-    theme_void() +
-    
-    theme(
-      plot.title = element_text(
-        size = 16,
-        face = "bold"
-      ),
-      plot.subtitle = element_text(size = 11),
-      legend.position = "bottom",
-      plot.margin = margin(5, 5, 5, 5),
-      legend.title = element_text(size = 10),
-      legend.text = element_text(size = 9)
-    )
-  
-}, res = 96)
 
 
-# ==================================================
-# 4. URBAN POPULATION MAP
-# ==================================================
 
-output$urban_population_map <- renderPlot({
-  
-  ggplot(map_data) +
-    
-    geom_sf(
-      aes(fill = Urban_Pct),
-      color = "white",
-      linewidth = 0.3
-    ) +
-    
-    map_coordinates +
-    
-    scale_fill_viridis_c(
-      option = "C",
-      limits = c(0, 1),
-      labels = scales::label_percent(accuracy = 1),
-      name = "Urban Population"
-    ) +
-    
-    labs(
-      title = "Urban Population by State",
-      subtitle = "Percentage of total state population"
-    ) +
-    
-    theme_void() +
-    
-    theme(
-      plot.title = element_text(
-        size = 16,
-        face = "bold"
-      ),
-      plot.subtitle = element_text(size = 11),
-      legend.position = "bottom",
-      plot.margin = margin(5, 5, 5, 5),
-      legend.title = element_text(size = 10),
-      legend.text = element_text(size = 9)
-    )
-  
-}, res = 96)
-
-
-# ==================================================
-# 5. TOTAL VEHICLE MILES TRAVELED MAP
-# ==================================================
-
-output$vmt_map <- renderPlot({
-  
-  ggplot(map_data) +
-    
-    geom_sf(
-      aes(fill = Total_VMT),
-      color = "white",
-      linewidth = 0.3
-    ) +
-    
-    map_coordinates +
-    
-    scale_fill_viridis_c(
-      option = "C",
-      labels = scales::label_number(
-        scale = 1e-9,
-        suffix = "B"
-      ),
-      name = "Total VMT"
-    ) +
-    
-    labs(
-      title = "Total Vehicle Miles Traveled by State",
-      subtitle = "2024 rural and urban VMT combined"
-    ) +
-    
-    theme_void() +
-    
-    theme(
-      plot.title = element_text(
-        size = 17,
-        face = "bold"
-      ),
-      plot.subtitle = element_text(size = 12),
-      legend.position = "bottom",
-      plot.margin = margin(10, 10, 10, 10),
-      legend.title = element_text(size = 10),
-      legend.text = element_text(size = 9)
-    )
-  
-}, res = 96)
-
-
-# ==================================================
-# 6. INTERACTIVE FATAL CRASH RATE MAP
-# ==================================================
-
-output$crash_rate_map <- renderLeaflet({
-  
-  # Color palette for rural minus urban rate
-  rate_palette <- colorNumeric(
-    palette = "RdYlBu",
-    domain = crash_map_data$Rate_Difference,
-    reverse = TRUE,
-    na.color = "#D3D3D3"
-  )
-  
-  
-  # Hover labels
-  hover_labels <- sprintf(
-    paste0(
-      "<strong>%s</strong><br/>",
-      "Rural fatal crash rate: %s<br/>",
-      "Urban fatal crash rate: %s<br/>",
-      "Rural minus urban difference: %s"
-    ),
-    
-    crash_map_data$NAME,
-    
-    ifelse(
-      is.na(crash_map_data$Rural),
-      "No data",
-      round(crash_map_data$Rural, 3)
-    ),
-    
-    ifelse(
-      is.na(crash_map_data$Urban),
-      "No data",
-      round(crash_map_data$Urban, 3)
-    ),
-    
-    ifelse(
-      is.na(crash_map_data$Rate_Difference),
-      "No data",
-      round(crash_map_data$Rate_Difference, 3)
-    )
-  )
-  
-  
-  # Build map
-  leaflet(crash_map_data) %>%
-    
-    addProviderTiles(
-      providers$OpenStreetMap.Mapnik
-    ) %>%
-    
-    addPolygons(
-      
-      fillColor = ~rate_palette(Rate_Difference),
-      
-      fillOpacity = 0.8,
-      
-      color = "white",
-      
-      weight = 1,
-      
-      label = lapply(
-        hover_labels,
-        htmltools::HTML
-      ),
-      
-      labelOptions = labelOptions(
-        sticky = TRUE,
-        direction = "auto",
-        textsize = "13px"
-      ),
-      
-      highlightOptions = highlightOptions(
-        weight = 3,
-        color = "#333333",
-        fillOpacity = 0.95,
-        bringToFront = TRUE
-      )
-    ) %>%
-    
-    addLegend(
-      position = "bottomright",
-      pal = rate_palette,
-      values = ~Rate_Difference,
-      title = "Rural - Urban<br>Rate Difference",
-      labFormat = labelFormat(digits = 2),
-      na.label = "No data"
-    )
-  
-})
+#extra code to do some fun analysis if it comes to mind 

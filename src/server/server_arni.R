@@ -51,16 +51,33 @@ output$arni_map <- renderLeaflet({
       fillOpacity = 0.75,
       stroke = FALSE,
       
-      popup = ~popup_text,
-      
+      # Popups are built on click (see below); only the ID is sent up front
+      layerId = ~arni_id,
+
       clusterOptions = markerClusterOptions(
         showCoverageOnHover = FALSE,
         zoomToBoundsOnClick = TRUE,
         spiderfyOnMaxZoom = TRUE,
-        maxClusterRadius = 65
+        maxClusterRadius = 65,
+        chunkedLoading = TRUE   # add markers in batches so the page stays responsive
       )
     )
 })
+
+# Show the popup for one crash when its marker is clicked
+observe({
+  click <- input$arni_map_marker_click
+  crash <- arni_data[arni_data$arni_id == click$id, ]
+  req(nrow(crash) == 1)
+
+  leafletProxy("arni_map") |>
+    clearPopups() |>
+    addPopups(
+      lng = click$lng,
+      lat = click$lat,
+      popup = arni_popup(crash)
+    )
+}) |> bindEvent(input$arni_map_marker_click)
 
 # ------------------------------------------------------------
 # 5. IDENTIFY ACCIDENTS IN VISIBLE MAP AREA

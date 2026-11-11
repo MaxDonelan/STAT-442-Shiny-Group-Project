@@ -140,6 +140,7 @@ Crash_rates <- Fatal_crashes_by_state |>
 
 # Anything that doesn't depend on user input goes in src/global/ so it runs
 # once at startup instead of once per user session in the server files.
+source("src/global/global_interactive_map.R", local = TRUE)
 source("src/global/global_arni.R", local = TRUE)
 source("src/global/global_arni_states.R", local = TRUE)
 source("src/global/global_riddick.R", local = TRUE)

@@ -60,27 +60,45 @@ arni_data <- arni_data |>
       100 * Survivors / People_Involved,
       NA_real_
     ),
-    
-    popup_text = paste0(
-      "<b>State:</b> ",
-      htmltools::htmlEscape(as.character(STATENAME)),
-      "<br><b>People Involved:</b> ",
-      People_Involved,
-      "<br><b>Deaths:</b> ",
-      Deaths,
-      "<br><b>Survivors:</b> ",
-      Survivors,
-      "<br><b>Death Rate:</b> ",
-      ifelse(
-        is.na(Death_Pct),
-        "N/A",
-        sprintf("%.2f%%", Death_Pct)
-      ),
-      "<br><b>Survival Rate:</b> ",
-      ifelse(
-        is.na(Survival_Pct),
-        "N/A",
-        sprintf("%.2f%%", Survival_Pct)
-      )
+
+    # Marker ID sent back to the server when a marker is clicked
+    arni_id = row_number()
+  )
+
+# Popup HTML for one crash. Built only when its marker is clicked, so the
+# browser doesn't have to download a popup for all ~36k crashes up front.
+arni_popup <- function(crash) {
+  paste0(
+    "<b>State:</b> ",
+    htmltools::htmlEscape(as.character(crash$STATENAME)),
+    "<br><b>People Involved:</b> ",
+    crash$People_Involved,
+    "<br><b>Deaths:</b> ",
+    crash$Deaths,
+    "<br><b>Survivors:</b> ",
+    crash$Survivors,
+    "<br><b>Death Rate:</b> ",
+    ifelse(
+      is.na(crash$Death_Pct),
+      "N/A",
+      sprintf("%.2f%%", crash$Death_Pct)
+    ),
+    "<br><b>Survival Rate:</b> ",
+    ifelse(
+      is.na(crash$Survival_Pct),
+      "N/A",
+      sprintf("%.2f%%", crash$Survival_Pct)
     )
+  )
+}
+
+# Keep only the columns the map and statistics use. Coordinates are rounded to
+# 5 decimals (about 1 m), which is plenty for the map and shrinks what is sent
+# to the browser.
+arni_data <- arni_data |>
+  transmute(
+    arni_id, STATENAME,
+    map_lat = round(map_lat, 5),
+    map_lon = round(map_lon, 5),
+    People_Involved, Deaths, Survivors, Death_Pct, Survival_Pct
   )

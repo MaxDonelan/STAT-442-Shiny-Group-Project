@@ -2,16 +2,16 @@
 
 # reactives --------------------------------------------------------------------
 
+# im_crashes (valid coordinates, numeric hour) is built once in
+# src/global/global_interactive_map.R
 im_data <- reactive({
   hrs <- as.integer(format(input$im_hour, "%H", tz = "UTC"))
-  
-  im_filtered_data <- accident_cleaned |>
+
+  im_filtered_data <- im_crashes |>
     filter(
-      between(Latitude, -90, 90),
-      between(Longitude, -180, 180),
       between(Fatalities, input$im_fatal[1], input$im_fatal[2]),
       between(Date, input$im_date[1], input$im_date[2]),
-      between(as.integer(Hour) - 1, hrs[1], hrs[2])
+      between(hour_num, hrs[1], hrs[2])
     )
   if (input$im_weather != "All") {
     im_filtered_data <- im_filtered_data |> 
@@ -27,6 +27,10 @@ im_data <- reactive({
   }
   im_filtered_data
 })
+
+# Wait until the filters stop changing for a moment before redrawing, so
+# dragging a slider doesn't re-send all the markers on every step
+im_data_debounced <- debounce(im_data, 500)
 
 # observers --------------------------------------------------------------------
 
@@ -56,7 +60,7 @@ observe({
 
 observe({
   req(im_map_ready())
-  leafletProxy("im_leaflet_map", data = im_data()) |>
+  leafletProxy("im_leaflet_map", data = im_data_debounced()) |>
     clearPopups() |>
     clearMarkerClusters() |>
     clearMarkers() |>
@@ -74,7 +78,7 @@ observe({
 # show info for one crash only when its marker is clicked
 observe({
   click <- input$im_leaflet_map_marker_click
-  crash <- accident_cleaned |> filter(ST_CASE == click$id)
+  crash <- im_crashes |> filter(ST_CASE == click$id)
   req(nrow(crash) == 1)
 
   leafletProxy("im_leaflet_map") |>

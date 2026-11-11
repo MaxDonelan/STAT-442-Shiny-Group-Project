@@ -70,6 +70,73 @@ us_states <- states(cb = TRUE, year = 2022, resolution = "20m") |>
   filter(NAME %in% c(state.name, "District of Columbia")) |>
   st_transform(crs = 4326)
 
+VMT_data <- readRDS("data/VMT_data.RDS")
+Rural_Urban_2024 <- readRDS("data/Rural_Urban_2024.RDS")
+
+
+# -------------------------------------------------------------------------
+# PREPARE RURAL VS. URBAN POPULATION AND VMT DATA
+# -------------------------------------------------------------------------
+
+# Calculate rural and urban VMT by state
+VMT_by_state <- VMT_data |>
+  group_by(State, Area) |>
+  summarise(
+    VMT = sum(VMT, na.rm = TRUE),
+    .groups = "drop"
+  )
+
+# Calculate total VMT by state
+Total_VMT_by_state <- VMT_by_state |>
+  group_by(State) |>
+  summarise(
+    Total_VMT = sum(VMT, na.rm = TRUE),
+    .groups = "drop"
+  )
+
+# Combine population and VMT information
+State_comparison <- Rural_Urban_2024 |>
+  left_join(
+    Total_VMT_by_state,
+    by = "State"
+  )
+
+
+# -------------------------------------------------------------------------
+# PREPARE FATAL CRASH RATE DATA
+# -------------------------------------------------------------------------
+
+# Count fatal crashes by state and rural/urban classification
+Fatal_crashes_by_state <- accident_cleaned |>
+  filter(Rurality %in% c("Rural", "Urban")) |>
+  group_by(State, Area = Rurality) |>
+  summarise(
+    Fatal_Crashes = n_distinct(ST_CASE),
+    .groups = "drop"
+  )
+
+# Ensure every state has both rural and urban observations
+Fatal_crashes_by_state <- Fatal_crashes_by_state |>
+  tidyr::complete(
+    State = Rural_Urban_2024$State,
+    Area = c("Rural", "Urban"),
+    fill = list(Fatal_Crashes = 0)
+  )
+
+# Calculate fatal crashes per 100 million vehicle miles traveled
+Crash_rates <- Fatal_crashes_by_state |>
+  left_join(
+    VMT_by_state,
+    by = c("State", "Area")
+  ) |>
+  mutate(
+    Fatal_Crash_Rate = if_else(
+      VMT > 0,
+      (Fatal_Crashes / VMT) * 100000000,
+      NA_real_
+    )
+  )
+
 
 # ui ---------------------------------------------------------------------------
 
@@ -108,7 +175,8 @@ ui <- page_navbar(
   source("src/ui/ui_carter.R", local = TRUE)$value,
   source("src/ui/ui_seasons.R", local = TRUE)$value,
   source("src/ui/ui_arni.R", local = TRUE)$value,
-  source("src/ui/ui_arni_states.R", local = TRUE)$value
+  source("src/ui/ui_arni_states.R", local = TRUE)$value,
+  source("src\ui\ui_riddick.R", local = TRUE)$value
   
   
 )
@@ -132,6 +200,8 @@ server <- function(input, output, session) {
   source("src/server/server_arni.R", local = TRUE)$value
   
   source("src/server/server_arni_states.R", local = TRUE)$value
+  
+  source("src\server\server_riddick.R", local = TRUE)$value
 }
 
 shinyApp(ui = ui, server = server)

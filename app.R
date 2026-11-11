@@ -176,7 +176,7 @@ ui <- page_navbar(
   source("src/ui/ui_seasons.R", local = TRUE)$value,
   source("src/ui/ui_arni.R", local = TRUE)$value,
   source("src/ui/ui_arni_states.R", local = TRUE)$value,
-  source("src\ui\ui_riddick.R", local = TRUE)$value
+  source("src/ui/ui_riddick.R", local = TRUE)$value
   
   
 )
@@ -201,7 +201,7 @@ server <- function(input, output, session) {
   
   source("src/server/server_arni_states.R", local = TRUE)$value
   
-  source("src\server\server_riddick.R", local = TRUE)$value
+  source("src/server/server_riddick.R", local = TRUE)$value
 }
 
 shinyApp(ui = ui, server = server)

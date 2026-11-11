@@ -2,6 +2,8 @@
 
 This repository has the code for the STAT 442 Group Shiny App project.
 
+Published [here](https://01a1cc30-9eaa-e1d3-8b95-848454a470a6.share.connect.posit.cloud/)
+
 ## App Tabs
 
 All data comes from the NHTSA Fatality Analysis Reporting System (FARS). Tabs use 2024 data unless noted otherwise.

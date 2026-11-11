@@ -24,7 +24,6 @@ nav_panel(
                   step = 3600,
                   timeFormat = "%I %p",   # 12 AM, 01 AM, ... 11 PM
                   timezone = "+0000"),
-      helpText("Crashes with an unknown time are only shown when all hours are selected."),
       dateRangeInput("im_date", 
                      label = "Date Range", 
                      start = "2024-01-01", 
@@ -45,7 +44,8 @@ nav_panel(
       input_task_button("im_reset",
                         label = "Reset",
                         icon = icon("rotate-left"), 
-                        auto_reset = TRUE)
+                        auto_reset = TRUE),
+      helpText("Crashes with an unknown time are only shown when all hours are selected."),
     ),
     leafletOutput("im_leaflet_map", height = "100%"),
     # If the user leaves this tab before the map loads, leaflet holds off

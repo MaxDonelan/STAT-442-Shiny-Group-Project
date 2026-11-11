@@ -169,7 +169,7 @@ ui <- page_navbar(
   title = "Traffic Fatalities",
   header = div(
     class = "d-flex justify-content-between align-items-center px-3",
-    HTML("<i>Source: NHTSA Fatality Analysis Reporting System</i>"),
+    HTML('<i>Source: NHTSA Fatality Analysis Reporting System <span style="color: grey;"> (2024 by default)</span></i>'),
     input_dark_mode(id = "ide_mode", mode = "dark")
   ),
   # each file is a tab

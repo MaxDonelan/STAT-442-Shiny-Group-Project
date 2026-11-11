@@ -9,7 +9,9 @@ nav_panel(
   icon = icon("heart-pulse"),
   
   layout_sidebar(
-    
+    padding = 0,
+    border = FALSE,
+    border_radius = FALSE,
     sidebar = sidebar(
       width = 330,
       open = "always",
@@ -22,15 +24,15 @@ nav_panel(
           style = "font-weight: bold;"
         ),
         
-        tags$p(
-          "Fatal Traffic Crashes - USA 2024"
-        ),
+        # tags$p(
+        #   "Fatal Traffic Crashes - USA 2024"
+        # ),
         
-        tags$p(
-          "Zoom or move the map to explore survival
-           statistics for any visible geographic area.",
-          style = "font-size: 13px;"
-        ),
+        # tags$p(
+        #   "Zoom or move the map to explore survival
+        #    statistics for any visible geographic area.",
+        #   style = "font-size: 13px;"
+        # ),
         
         tags$hr(),
         

@@ -59,7 +59,7 @@ seasons_plot_theme <- reactive({
 output$seasons_summary <- renderText({
   result <- seasons_filtered()
   paste0(
-    paste(sort(unique(accident$YEAR)), collapse = ", "), " | ",
+    #paste(sort(unique(accident$YEAR)), collapse = ", "), " | ",
     if (input$seasons_state == "all") "All states" else input$seasons_state,
     ": ", format(nrow(result), big.mark = ","), " fatal crashes and ",
     format(sum(result$FATALS, na.rm = TRUE), big.mark = ","), " fatalities.",

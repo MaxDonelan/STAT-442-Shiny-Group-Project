@@ -4,7 +4,7 @@ nav_panel(
   icon = icon("calendar"),
   div(
     style = "width: 100%; padding: 1rem;",
-    h2(paste("Seasonal patterns in traffic fatalities —", paste(sort(unique(accident$YEAR)), collapse = ", "))),
+    h2("Seasonal patterns in traffic fatalities"),
     layout_columns(
       col_widths = c(6, 6),
       fill = FALSE,
@@ -19,8 +19,7 @@ nav_panel(
         inline = TRUE
       )
     ),
-    p("Explore how fatal crashes and fatalities vary throughout the year. Counts do not adjust for traffic volume or the number of days in each season."),
-    p("Winter: Dec-Feb; spring: Mar-May; summer: Jun-Aug; fall: Sep-Nov. Winter combines January, February, and December within each calendar year."),
+    helpText("Explore how fatal crashes and fatalities vary throughout the year. Counts do not adjust for traffic volume or the number of days in each season."),
     textOutput("seasons_summary"),
     card(
       full_screen = TRUE,
@@ -28,6 +27,7 @@ nav_panel(
       plotOutput("seasons_comparison", height = "440px"),
       fill = FALSE
     ),
+    helpText("Winter: Dec-Feb; spring: Mar-May; summer: Jun-Aug; fall: Sep-Nov. Winter combines January, February, and December within each calendar year."),
     card(
       full_screen = TRUE,
       card_header("Monthly trend"),

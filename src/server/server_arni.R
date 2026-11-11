@@ -352,9 +352,9 @@ output$arni_survival_stats <- renderUI({
     
     tags$hr(),
     
-    tags$p(
-      "Move or zoom the map to explore another area.",
-      style = "font-size: 12px; color: #D1D5DB;"
-    )
+    # tags$p(
+    #   "Move or zoom the map to explore another area.",
+    #   style = "font-size: 12px; color: #D1D5DB;"
+    # )
   )
 })

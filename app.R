@@ -22,6 +22,7 @@ library(tigris)
 library(sf)
 library(bsicons)
 library(plotly)
+library(lwgeom) # needed by tigris::shift_geometry() in the Rural vs. Urban maps
 
 # data -------------------------------------------------------------------------
 

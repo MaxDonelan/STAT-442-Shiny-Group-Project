@@ -8,6 +8,8 @@ nav_panel(
   
   title = "Rural vs. Urban",
   
+  icon = icon("tree-city"),
+  
   layout_sidebar(
     
     # SIDEBAR

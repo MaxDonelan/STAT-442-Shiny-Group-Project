@@ -18,12 +18,14 @@ library(scales)
 # 1. PREPARE MAP DATA
 # ==================================================
 
-# Join population and VMT information to state map
+# Join population and VMT information to state map, then move Alaska and
+# Hawaii below the lower 48 (next to Texas) for the static maps
 map_data <- us_states %>%
   left_join(
     State_comparison,
     by = c("NAME" = "State")
-  )
+  ) %>%
+  tigris::shift_geometry()
 
 
 # Reshape fatal crash rates into rural and urban columns
@@ -50,10 +52,9 @@ crash_map_data <- us_states %>%
 # 2. MAP COORDINATES
 # ==================================================
 
-# Geographic extent that includes all 50 states
+# Albers projection from shift_geometry(); hide graticule lines
 map_coordinates <- coord_sf(
-  xlim = c(-179, -66),
-  ylim = c(17, 72),
+  datum = NA,
   expand = FALSE
 )
 

@@ -4,39 +4,9 @@
 # Author: Thomas Shields
 # ============================================================
 
-# Load person-level data
-persons <- readRDS("data/persons_thomas.rds")
-
-# ============================================================
-# Prepare fatality-level data
-# ============================================================
-
-fatality_data <- persons |>
-  dplyr::filter(INJ_SEVNAME == "Fatal Injury (K)") |>
-  dplyr::mutate(
-    SEX_LABEL = dplyr::case_when(
-      SEX == 1 ~ "Male",
-      SEX == 2 ~ "Female",
-      TRUE ~ "Unknown / Other"
-    ),
-    
-    ROAD_TYPE = dplyr::case_when(
-      FUNC_SYS == 1 ~ "Interstate",
-      FUNC_SYS == 2 ~ "Other Freeway / Expressway",
-      FUNC_SYS == 3 ~ "Other Principal Arterial",
-      FUNC_SYS == 4 ~ "Minor Arterial",
-      FUNC_SYS == 5 ~ "Major Collector",
-      FUNC_SYS == 6 ~ "Minor Collector",
-      FUNC_SYS == 7 ~ "Local Road",
-      TRUE ~ "Unknown / Other"
-    ),
-    
-    AREA_TYPE = dplyr::case_when(
-      RUR_URB == 1 ~ "Rural",
-      RUR_URB == 2 ~ "Urban",
-      TRUE ~ "Unknown / Other"
-    )
-  )
+# fatality_data (fatal-injury persons with SEX_LABEL, ROAD_TYPE and AREA_TYPE)
+# is loaded once in app.R from data/fatalities_thomas.rds, which is built by
+# src/unsourced/prepare_app_data.R.
 
 # ============================================================
 # Filter by year

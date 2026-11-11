@@ -4,50 +4,6 @@
 # SERVER
 # ==================================================
 
-library(shiny)
-library(dplyr)
-library(tidyr)
-library(ggplot2)
-library(sf)
-library(leaflet)
-library(htmltools)
-library(scales)
-
-
-# ==================================================
-# 1. PREPARE MAP DATA
-# ==================================================
-
-# Join population and VMT information to state map, then move Alaska and
-# Hawaii below the lower 48 (next to Texas) for the static maps
-map_data <- us_states %>%
-  left_join(
-    State_comparison,
-    by = c("NAME" = "State")
-  ) %>%
-  tigris::shift_geometry()
-
-
-# Reshape fatal crash rates into rural and urban columns
-crash_rate_data <- Crash_rates %>%
-  select(State, Area, Fatal_Crash_Rate) %>%
-  pivot_wider(
-    names_from = Area,
-    values_from = Fatal_Crash_Rate
-  ) %>%
-  mutate(
-    Rate_Difference = Rural - Urban
-  )
-
-
-# Join crash rates to state map
-crash_map_data <- us_states %>%
-  left_join(
-    crash_rate_data,
-    by = c("NAME" = "State")
-  )
-
-
 # ==================================================
 # 2. MAP COORDINATES
 # ==================================================

@@ -22,7 +22,7 @@ library(tigris)
 library(sf)
 library(bsicons)
 library(plotly)
-library(lwgeom) # needed by tigris::shift_geometry() in the Rural vs. Urban maps
+library(tidyr)   # pivot_wider() in src/global/global_riddick.R
 
 # data -------------------------------------------------------------------------
 
@@ -58,18 +58,13 @@ accident_cleaned <- readRDS("data/accident_cleaned.rds") |>
   )
 accident <- readRDS("data/accident.rds") # I'll probably create a cleaned version eventually (as an FYI if you end up using it)
 
-person_cleaned <- readRDS("data/person_cleaned.rds") |>
-  mutate(
-    Fatal = factor(Fatal, levels = c("Dead", "Alive", "Unknown/Other"))
-)
-
 data24    <- readRDS("data/accidents_24.rds")
 data23    <- readRDS("data/accidents_23.rds")
 
-options(tigris_use_cache = TRUE)
-us_states <- states(cb = TRUE, year = 2022, resolution = "20m") |>
-  filter(NAME %in% c(state.name, "District of Columbia")) |>
-  st_transform(crs = 4326)
+# Pre-built by src/unsourced/prepare_app_data.R (re-run it if the source data changes)
+fatality_data     <- readRDS("data/fatalities_thomas.rds") # fatal-injury persons, Thomas tab
+us_states         <- readRDS("data/us_states.rds")         # state outlines for leaflet maps
+us_states_shifted <- readRDS("data/us_states_shifted.rds") # AK/HI moved, for static maps
 
 VMT_data <- readRDS("data/VMT_data.RDS")
 Rural_Urban_2024 <- readRDS("data/Rural_Urban_2024.RDS")
@@ -137,6 +132,17 @@ Crash_rates <- Fatal_crashes_by_state |>
       NA_real_
     )
   )
+
+
+# -------------------------------------------------------------------------
+# PER-TAB DATA PREP
+# -------------------------------------------------------------------------
+
+# Anything that doesn't depend on user input goes in src/global/ so it runs
+# once at startup instead of once per user session in the server files.
+source("src/global/global_arni.R", local = TRUE)
+source("src/global/global_arni_states.R", local = TRUE)
+source("src/global/global_riddick.R", local = TRUE)
 
 
 # ui ---------------------------------------------------------------------------

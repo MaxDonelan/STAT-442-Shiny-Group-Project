@@ -18,10 +18,6 @@ library(leaflet)
 library(tigris)
 library(sf)
 library(bsicons)
-library(tigris)
-library(sf)
-library(bsicons)
-library(plotly)
 
 # data -------------------------------------------------------------------------
 
@@ -71,6 +67,34 @@ us_states <- states(cb = TRUE, year = 2022, resolution = "20m") |>
   st_transform(crs = 4326)
 
 
+VMT_2024 <- readRDS("VMT_data.rds")
+RvU2024 <- readRDS("Rural_Urban_2024.rds")
+
+# Clean state names
+accidents$STATENAME <- trimws(as.character(accidents$STATENAME))
+VMT$State <- trimws(as.character(VMT$State))
+R_U_2024_pop$State <- trimws(as.character(R_U_2024_pop$State))
+
+# Convert VMT to numeric
+VMT$VMT <- as.numeric(gsub(",", "", as.character(VMT$VMT)))
+
+# Filter VMT for 2024
+if ("Year" %in% names(VMT)) {
+  VMT <- VMT %>%
+    filter(as.numeric(as.character(Year)) == 2024)
+}
+
+
+valid_states <- unique(R_U_2024_pop$State)
+
+VMT <- VMT %>%
+  filter(State %in% valid_states)
+
+accidents <- accidents %>%
+  filter(STATENAME %in% valid_states)
+
+
+
 # ui ---------------------------------------------------------------------------
 
 # IMPORTANT
@@ -97,19 +121,13 @@ ui <- page_navbar(
       }
     "),
   title = "Traffic Fatalities",
-  header = div(
-    class = "d-flex justify-content-between align-items-center px-3",
-    HTML("<i>Source: NHTSA Fatality Analysis Reporting System</i>"),
-    input_dark_mode(id = "ide_mode", mode = "dark")
-  ),
+  header = div(input_dark_mode(id = "ide_mode", mode = "dark"),
+               style = "text-align: right;"),
   # each file is a tab
   source("src/ui/ui_interactive_map.R", local = TRUE)$value, # need local = TRUE to use environment created by the app as it runs
   source("src/ui/ui_thomas.R", local = TRUE)$value,
   source("src/ui/ui_carter.R", local = TRUE)$value,
-  source("src/ui/ui_seasons.R", local = TRUE)$value,
-  source("src/ui/ui_arni.R", local = TRUE)$value,
-  source("src/ui/ui_arni_states.R", local = TRUE)$value
-  
+  source("src/ui/ui_riddick.R", local = TRUE)$value
   
 )
 
@@ -127,11 +145,9 @@ server <- function(input, output, session) {
   
   source("src/server/server_carter.R", local = TRUE)$value
   
-  source("src/server/server_seasons.R", local = TRUE)$value
-  
-  source("src/server/server_arni.R", local = TRUE)$value
-  
-  source("src/server/server_arni_states.R", local = TRUE)$value
+  source("src/server/server_riddick.R", local = TRUE)$value
 }
 
 shinyApp(ui = ui, server = server)
+
+

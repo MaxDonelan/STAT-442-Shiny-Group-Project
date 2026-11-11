@@ -4,58 +4,32 @@
 # SERVER
 # ==================================================
 
-library(shiny)
-library(dplyr)
-library(tidyr)
-library(ggplot2)
-library(sf)
-library(leaflet)
-library(htmltools)
-library(scales)
-
-
-# ==================================================
-# 1. PREPARE MAP DATA
-# ==================================================
-
-# Join population and VMT information to state map
-map_data <- us_states %>%
-  left_join(
-    State_comparison,
-    by = c("NAME" = "State")
-  )
-
-
-# Reshape fatal crash rates into rural and urban columns
-crash_rate_data <- Crash_rates %>%
-  select(State, Area, Fatal_Crash_Rate) %>%
-  pivot_wider(
-    names_from = Area,
-    values_from = Fatal_Crash_Rate
-  ) %>%
-  mutate(
-    Rate_Difference = Rural - Urban
-  )
-
-
-# Join crash rates to state map
-crash_map_data <- us_states %>%
-  left_join(
-    crash_rate_data,
-    by = c("NAME" = "State")
-  )
-
-
 # ==================================================
 # 2. MAP COORDINATES
 # ==================================================
 
-# Geographic extent that includes all 50 states
+# Albers projection from shift_geometry(); hide graticule lines
 map_coordinates <- coord_sf(
-  xlim = c(-179, -66),
-  ylim = c(17, 72),
+  datum = NA,
   expand = FALSE
 )
+
+
+# Transparent backgrounds inherit the card color; text follows the dark mode toggle.
+riddick_map_theme <- function(title_size = 16, subtitle_size = 11, plot_margin = 5) {
+  # plot_foreground() and theme_transparent() are in src/global/global_theme.R
+  theme_void() +
+    theme_transparent() +
+    theme(
+      text = element_text(colour = plot_foreground(input$ide_mode)),
+      plot.title = element_text(size = title_size, face = "bold"),
+      plot.subtitle = element_text(size = subtitle_size),
+      legend.position = "bottom",
+      plot.margin = margin(plot_margin, plot_margin, plot_margin, plot_margin),
+      legend.title = element_text(size = 10),
+      legend.text = element_text(size = 9)
+    )
+}
 
 
 # ==================================================
@@ -86,21 +60,12 @@ output$rural_population_map <- renderPlot({
       subtitle = "Percentage of total state population"
     ) +
     
-    theme_void() +
-    
-    theme(
-      plot.title = element_text(
-        size = 16,
-        face = "bold"
-      ),
-      plot.subtitle = element_text(size = 11),
-      legend.position = "bottom",
-      plot.margin = margin(5, 5, 5, 5),
-      legend.title = element_text(size = 10),
-      legend.text = element_text(size = 9)
-    )
+    riddick_map_theme()
   
-}, res = 96)
+}, res = 96, bg = "transparent") |>
+  # The data never changes, so each map only has to be drawn once per theme
+  # (and plot size) for all users; later requests reuse the cached image
+  bindCache(input$ide_mode)
 
 
 # ==================================================
@@ -131,21 +96,12 @@ output$urban_population_map <- renderPlot({
       subtitle = "Percentage of total state population"
     ) +
     
-    theme_void() +
-    
-    theme(
-      plot.title = element_text(
-        size = 16,
-        face = "bold"
-      ),
-      plot.subtitle = element_text(size = 11),
-      legend.position = "bottom",
-      plot.margin = margin(5, 5, 5, 5),
-      legend.title = element_text(size = 10),
-      legend.text = element_text(size = 9)
-    )
+    riddick_map_theme()
   
-}, res = 96)
+}, res = 96, bg = "transparent") |>
+  # The data never changes, so each map only has to be drawn once per theme
+  # (and plot size) for all users; later requests reuse the cached image
+  bindCache(input$ide_mode)
 
 
 # ==================================================
@@ -178,21 +134,12 @@ output$vmt_map <- renderPlot({
       subtitle = "2024 rural and urban VMT combined"
     ) +
     
-    theme_void() +
-    
-    theme(
-      plot.title = element_text(
-        size = 17,
-        face = "bold"
-      ),
-      plot.subtitle = element_text(size = 12),
-      legend.position = "bottom",
-      plot.margin = margin(10, 10, 10, 10),
-      legend.title = element_text(size = 10),
-      legend.text = element_text(size = 9)
-    )
+    riddick_map_theme(title_size = 17, subtitle_size = 12, plot_margin = 10)
   
-}, res = 96)
+}, res = 96, bg = "transparent") |>
+  # The data never changes, so each map only has to be drawn once per theme
+  # (and plot size) for all users; later requests reuse the cached image
+  bindCache(input$ide_mode)
 
 
 # ==================================================
@@ -242,11 +189,11 @@ output$crash_rate_map <- renderLeaflet({
   
   
   # Build map
-  leaflet(crash_map_data) %>%
+  leaflet(crash_map_data) |>
     
     addProviderTiles(
       providers$OpenStreetMap.Mapnik
-    ) %>%
+    ) |>
     
     addPolygons(
       
@@ -275,7 +222,7 @@ output$crash_rate_map <- renderLeaflet({
         fillOpacity = 0.95,
         bringToFront = TRUE
       )
-    ) %>%
+    ) |>
     
     addLegend(
       position = "bottomright",
@@ -284,6 +231,9 @@ output$crash_rate_map <- renderLeaflet({
       title = "Rural - Urban<br>Rate Difference",
       labFormat = labelFormat(digits = 2),
       na.label = "No data"
-    )
+    ) |>
+    
+    # Start centered on the continental US
+    setView(lng = -98.5, lat = 39.8, zoom = 4)
   
 })

@@ -66,10 +66,9 @@ map_legend <- reactive({
   }
 })
 
-# Render interactive leaflet map
-output$state_map <- renderLeaflet({
-  data <- map_data_code()
-  
+# Add the colored states and legend to a map. Used both for the first draw
+# and for later updates through leafletProxy().
+add_state_layers <- function(map, data) {
   # Join accident data to state geometries by state name
   map_sf <- us_states |>
     left_join(data, by = c("NAME" = "STATENAME"))
@@ -96,10 +95,11 @@ output$state_map <- renderLeaflet({
     ifelse(is.na(map_sf$map_value), NA_real_, map_sf$map_value)
   ) |> lapply(htmltools::HTML)
   
-  leaflet(map_sf) |>
-    addTiles() |>
-    setView(lng = -96, lat = 38, zoom = 4) |>
+  map |>
+    clearShapes() |>
+    clearControls() |>
     addPolygons(
+      data        = map_sf,
       fillColor   = ~pal(map_value),
       fillOpacity = 0.8,
       color       = "white",
@@ -119,9 +119,25 @@ output$state_map <- renderLeaflet({
     ) |>
     addLegend(
       pal      = pal,
-      values   = ~map_value,
+      values   = map_sf$map_value,
       title    = map_legend(),
       position = "bottomright",
       na.label = "No data"
     )
+}
+
+# Draw the map once. isolate() keeps it from being rebuilt (tiles and all)
+# whenever an input changes; the observer below updates it instead. It still
+# picks up the current inputs when the tab is first opened.
+output$state_map <- renderLeaflet({
+  base_map <- leaflet() |>
+    addTiles() |>
+    setView(lng = -96, lat = 38, zoom = 4)
+  isolate(add_state_layers(base_map, map_data_code()))
+})
+
+# When the inputs change, swap in the new state colors and legend
+observe({
+  leafletProxy("state_map") |>
+    add_state_layers(map_data_code())
 })

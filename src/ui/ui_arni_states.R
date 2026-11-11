@@ -13,9 +13,9 @@ nav_panel(
     
     h2("Survival vs Deaths Across U.S. States"),
     
-    p(
-      "2024 Fatal Traffic Crashes | Arni Mwalumba"
-    ),
+    # p(
+    #   "2024 Fatal Traffic Crashes | Arni Mwalumba"
+    # ),
     
     p(
       "Regions and states are ranked from highest to
@@ -23,10 +23,10 @@ nav_panel(
        actual number of people involved."
     ),
     
-    p(
-      "Scroll horizontally to explore all states.",
-      style = "font-size: 13px; color: #999;"
-    ),
+    # p(
+    #   "Scroll horizontally to explore all states.",
+    #   style = "font-size: 13px; color: #999;"
+    # ),
     
     div(
       style = paste0(

@@ -55,7 +55,9 @@ accident_cleaned <- accident |>
     State = STATENAME,
     ST_CASE = ST_CASE,
     Date = as.Date(paste0(YEAR, "-", MONTH, "-", DAY)),,
-    Hour = factor(HOURNAME,
+    # FARS labels the midnight hour "0:00am-0:59am"; rename it to match the
+    # levels below, otherwise those ~1,500 crashes become NA
+    Hour = factor(if_else(HOURNAME == "0:00am-0:59am", "12:00am-12:59am", HOURNAME),
                   levels = c(
                     "12:00am-12:59am",
                     "1:00am-1:59am",

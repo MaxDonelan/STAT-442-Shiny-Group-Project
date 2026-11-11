@@ -6,19 +6,21 @@
 
 nav_panel(
   
-  title = "2024 Rural vs. Urban Fatal Crash Analysis",
+  title = "Rural vs. Urban",
+  
+  icon = icon("tree-city"),
   
   layout_sidebar(
     
     # SIDEBAR
     sidebar = sidebar(
       
-      title = "Select Analysis",
+      title = "Choose a Visualization",
       
       radioButtons(
         inputId = "graph_choice",
-        
-        label = "Choose a visualization:",
+        label = "",
+        #label = "Choose a visualization:",
         
         choices = c(
           "Population Distribution" = "population",
@@ -39,7 +41,7 @@ nav_panel(
       
       condition = "input.graph_choice == 'population'",
       
-      h3("2024 Rural vs. Urban Population Distribution"),
+      h3("Rural vs. Urban Population Distribution"),
       
       p(
         "Compare the percentage of each state's population living in rural and urban areas."
@@ -84,7 +86,7 @@ nav_panel(
       
       card(
         
-        card_header("2024 Total Vehicle Miles Traveled"),
+        card_header("Total Vehicle Miles Traveled"),
         
         p(
           "Total rural and urban vehicle miles traveled combined by state."

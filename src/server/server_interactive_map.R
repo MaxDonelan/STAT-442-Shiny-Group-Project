@@ -44,7 +44,18 @@ observe({
   
 }) |> bindEvent(input$im_reset)
 
+# The map isn't built until its tab is visible, so markers sent before then are
+# lost (e.g. if the user switches tabs while the app is loading). Leaflet sets
+# input$im_leaflet_map_zoom once the map exists; a reactiveVal only invalidates
+# when its value changes, so later zooms don't redraw the markers.
+im_map_ready <- reactiveVal(FALSE)
+
 observe({
+  im_map_ready(TRUE)
+}) |> bindEvent(input$im_leaflet_map_zoom)
+
+observe({
+  req(im_map_ready())
   leafletProxy("im_leaflet_map", data = im_data()) |>
     clearPopups() |>
     clearMarkerClusters() |>

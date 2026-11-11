@@ -46,6 +46,16 @@ nav_panel(
                         icon = icon("rotate-left"), 
                         auto_reset = TRUE)
     ),
-    leafletOutput("im_leaflet_map", height = "100%")
+    leafletOutput("im_leaflet_map", height = "100%"),
+    # If the user leaves this tab before the map loads, leaflet holds off
+    # drawing it until its next resize. Shiny only resizes outputs whose size
+    # changed, so the map stays grey when the user returns. Force a resize
+    # whenever a tab is shown to draw the held-back map.
+    tags$script(HTML("
+      $(document).on('shown.bs.tab', function() {
+        var widget = HTMLWidgets.find('#im_leaflet_map');
+        if (widget && $('#im_leaflet_map').is(':visible')) widget.resize();
+      });
+    "))
   )
 )

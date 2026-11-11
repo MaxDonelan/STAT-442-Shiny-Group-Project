@@ -163,7 +163,7 @@ region_positions <- state_survival |>
     by = "Region"
   )
 
-# Maximum bar height determines label positioning.
+# Maximum bar height sets the top of the y-axis.
 
 max_people <- max(
   state_survival$Total_People,
@@ -172,8 +172,6 @@ max_people <- max(
 
 region_positions <- region_positions |>
   mutate(
-    y_position = max_people * 1.19,
-    
     Header = sprintf(
       paste0(
         "<b>%s</b>",
@@ -244,10 +242,15 @@ region_annotations <- lapply(
     
     list(
       x = region_positions$x_center[i],
-      y = region_positions$y_position[i],
-      
+
+      # Sit just above the plotting area (paper coordinates) so the
+      # headers never collide with bars or horizontal gridlines
+      y = 1,
+      yanchor = "bottom",
+      yshift = 6,
+
       xref = "x",
-      yref = "y",
+      yref = "paper",
       
       text = region_positions$Header[i],
       

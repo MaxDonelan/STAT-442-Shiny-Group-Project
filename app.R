@@ -65,6 +65,8 @@ person_cleaned <- readRDS("data/person_cleaned.rds") |>
 data24    <- readRDS("data/accidents_24.rds")
 data23    <- readRDS("data/accidents_23.rds")
 
+thomas_fatalities <- readRDS("data/fatalities_thomas.rds") # built by src/unsourced/fatalities_cleaning_thomas.R
+
 options(tigris_use_cache = TRUE)
 us_states <- states(cb = TRUE, year = 2022, resolution = "20m") |>
   filter(NAME %in% c(state.name, "District of Columbia")) |>

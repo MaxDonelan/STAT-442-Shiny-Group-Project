@@ -2,7 +2,7 @@
 
 This repository has the code for the STAT 442 Group Shiny App project.
 
-Published [here](https://01a1cc30-9eaa-e1d3-8b95-848454a470a6.share.connect.posit.cloud/)
+Published [here](https://01a1d0e8-1802-a4c1-9f96-290a194b4cfe.share.connect.posit.cloud/)
 
 ## App Tabs
 

@@ -2,17 +2,24 @@
 
 # reactives --------------------------------------------------------------------
 
+# im_crashes (valid coordinates, numeric hour) is built once in
+# src/global/global_interactive_map.R
 im_data <- reactive({
   hrs <- as.integer(format(input$im_hour, "%H", tz = "UTC"))
-  
-  im_filtered_data <- accident_cleaned |>
+
+  im_filtered_data <- im_crashes |>
     filter(
-      between(Latitude, -90, 90),
-      between(Longitude, -180, 180),
       between(Fatalities, input$im_fatal[1], input$im_fatal[2]),
-      between(Date, input$im_date[1], input$im_date[2]),
-      between(as.integer(Hour) - 1, hrs[1], hrs[2])
+      between(Date, input$im_date[1], input$im_date[2])
     )
+  # Crashes with an unknown hour (~250) can't be placed in a narrower range,
+  # so they are only shown when the full day is selected
+  if (hrs[1] > 0 || hrs[2] < 23) {
+    im_filtered_data <- im_filtered_data |>
+      filter(
+        between(hour_num, hrs[1], hrs[2])
+      )
+  }
   if (input$im_weather != "All") {
     im_filtered_data <- im_filtered_data |> 
       filter(
@@ -27,6 +34,10 @@ im_data <- reactive({
   }
   im_filtered_data
 })
+
+# Wait until the filters stop changing for a moment before redrawing, so
+# dragging a slider doesn't re-send all the markers on every step
+im_data_debounced <- debounce(im_data, 500)
 
 # observers --------------------------------------------------------------------
 
@@ -44,8 +55,19 @@ observe({
   
 }) |> bindEvent(input$im_reset)
 
+# The map isn't built until its tab is visible, so markers sent before then are
+# lost (e.g. if the user switches tabs while the app is loading). Leaflet sets
+# input$im_leaflet_map_zoom once the map exists; a reactiveVal only invalidates
+# when its value changes, so later zooms don't redraw the markers.
+im_map_ready <- reactiveVal(FALSE)
+
 observe({
-  leafletProxy("im_leaflet_map", data = im_data()) |>
+  im_map_ready(TRUE)
+}) |> bindEvent(input$im_leaflet_map_zoom)
+
+observe({
+  req(im_map_ready())
+  leafletProxy("im_leaflet_map", data = im_data_debounced()) |>
     clearPopups() |>
     clearMarkerClusters() |>
     clearMarkers() |>
@@ -63,7 +85,7 @@ observe({
 # show info for one crash only when its marker is clicked
 observe({
   click <- input$im_leaflet_map_marker_click
-  crash <- accident_cleaned |> filter(ST_CASE == click$id)
+  crash <- im_crashes |> filter(ST_CASE == click$id)
   req(nrow(crash) == 1)
 
   leafletProxy("im_leaflet_map") |>
@@ -74,7 +96,7 @@ observe({
       popup = paste0(
         "<b>Crash Info</b><hr>",
         "<i>Date:</i> ", format(crash$Date, "%B %d, %Y"), "<br>",
-        "<i>Time:</i> ", crash$Hour, "<br>",
+        "<i>Time:</i> ", if (is.na(crash$Hour)) "Unknown" else crash$Hour, "<br>",
         "<i>Fatalities:</i> ", crash$Fatalities, "<br>",
         "<i>Weather:</i> ", crash$Weather, "<br>",
         "<i>Light:</i> ", crash$`Light Conditions`

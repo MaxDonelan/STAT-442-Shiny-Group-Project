@@ -21,35 +21,9 @@ library(tigris)
 options(tigris_use_cache = TRUE)
 
 # Thomas: fatality-level data --------------------------------------------------
+# Built by Thomas's own cleaning script (also writes data/fatalities_thomas.rds)
 
-fatalities_thomas <- readRDS("data/persons_thomas.rds") |>
-  filter(INJ_SEVNAME == "Fatal Injury (K)") |>
-  transmute(
-    YEAR,
-    PER_TYP,
-    SEX_LABEL = case_when(
-      SEX == 1 ~ "Male",
-      SEX == 2 ~ "Female",
-      TRUE ~ "Unknown / Other"
-    ),
-    ROAD_TYPE = case_when(
-      FUNC_SYS == 1 ~ "Interstate",
-      FUNC_SYS == 2 ~ "Other Freeway / Expressway",
-      FUNC_SYS == 3 ~ "Other Principal Arterial",
-      FUNC_SYS == 4 ~ "Minor Arterial",
-      FUNC_SYS == 5 ~ "Major Collector",
-      FUNC_SYS == 6 ~ "Minor Collector",
-      FUNC_SYS == 7 ~ "Local Road",
-      TRUE ~ "Unknown / Other"
-    ),
-    AREA_TYPE = case_when(
-      RUR_URB == 1 ~ "Rural",
-      RUR_URB == 2 ~ "Urban",
-      TRUE ~ "Unknown / Other"
-    )
-  )
-
-saveRDS(fatalities_thomas, "data/fatalities_thomas.rds")
+source("src/unsourced/fatalities_cleaning_thomas.R")
 
 # State outlines ---------------------------------------------------------------
 

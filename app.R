@@ -56,7 +56,7 @@ data24    <- readRDS("data/accidents_24.rds")
 data23    <- readRDS("data/accidents_23.rds")
 
 # Pre-built by src/unsourced/prepare_app_data.R (re-run it if the source data changes)
-fatality_data     <- readRDS("data/fatalities_thomas.rds") # fatal-injury persons, Thomas tab
+thomas_fatalities <- readRDS("data/fatalities_thomas.rds") # fatal-injury persons, Thomas tab
 us_states         <- readRDS("data/us_states.rds")         # state outlines for leaflet maps
 us_states_shifted <- readRDS("data/us_states_shifted.rds") # AK/HI moved, for static maps
 
